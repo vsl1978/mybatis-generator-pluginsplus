@@ -30,17 +30,13 @@
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.ToStringPlugin" />
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.DistinctPlugin" />
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.MapPlugin" />
-        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.JoinPlugin">
-            <property name="generateModelConst" value="true"/>
-        </plugin>
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.JoinPlugin"/>
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.AnyCriteriaPlugin" />
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.NullableInCriteriaPlugin" />
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.ExampleMethodsChainPlugin" />
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.SimpleOrCriteriaPlugin" />
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.PaginationPlugin" >
             <property name="dialect" value="hsql"/>
-            <property name="optimize" value="true"/>
-            <property name="methodsChain" value="true"/>
         </plugin>
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.ModelSettersChainPlugin">
 <!--            <property name="prefix" value=""/>-->

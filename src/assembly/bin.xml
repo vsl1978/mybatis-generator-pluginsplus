@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<assembly>
+  <id>bin</id>
+  <formats>
+    <format>tar.gz</format>
+    <format>zip</format>
+  </formats>
+  <fileSets>
+    <fileSet>
+      <includes>
+        <include>README*</include>
+        <include>LICENSE*</include>
+      </includes>
+    </fileSet>
+  
+    <fileSet>
+      <directory>mybatis-generator-pluginsplus/target</directory>
+      <outputDirectory></outputDirectory>
+      <includes>
+        <include>*.jar</include>
+      </includes>
+    </fileSet>
+
+    <fileSet>
+      <includes>
+        <include>pom.xml</include>
+      </includes>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+    <fileSet>
+      <directory>src</directory>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+
+    <fileSet>
+      <outputDirectory></outputDirectory>
+      <includes>
+        <include>mybatis-generator-pluginsplus/pom.xml</include>
+      </includes>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+    <fileSet>
+      <directory>mybatis-generator-pluginsplus/src</directory>
+      <outputDirectory>mybatis-generator-pluginsplus</outputDirectory>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+
+    <fileSet>
+      <outputDirectory></outputDirectory>
+      <includes>
+        <include>mybatis-generator-pluginsplus-tests/pom.xml</include>
+      </includes>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+    <fileSet>
+      <excludes>
+          <exclude>**/System*.java</exclude>
+          <exclude>**/System*.xml</exclude>
+      </excludes>
+      <directory>mybatis-generator-pluginsplus-tests/src</directory>
+      <outputDirectory>mybatis-generator-pluginsplus-tests</outputDirectory>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+
+  </fileSets>
+
+</assembly>

@@ -18,7 +18,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.*;
 import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
 
 /**
- * <p>Adds to Model class new static methods {@code Map&lt;field_type, Model&gt; mapByXxx(Collection&lt;Model&gt;)} and {@code Map&lt;field_type, List&lt;Model&gt;&gt; mapAllByXxx(Collection&lt;Model&gt;)}  aimed at grouping selected records by value of short-, int-, long- and String-fields.</p>
+ * <p>Adds to Model class new static methods {@code Map<field_type, Model> mapByXxx(Collection<Model>)} and {@code Map<field_type, List<Model>> mapAllByXxx(Collection<Model>)}  aimed at grouping selected records by value of short-, int-, long- and String-fields.</p>
  * <p>Configuration parameters:</p>
  * <ul>
  *     <li><i>(optional)</i> {@code mapMethodPrefix} &mdash; the new {@code mapByXxx}-method's prefix. Default value is {@code "mapBy"}</li>

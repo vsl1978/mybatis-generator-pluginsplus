@@ -17,7 +17,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.*;
 import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
 
 /**
- * <p>Adds to Model class new static methods {@code distinctXxx(Collection&lt;Model&gt;)} aimed at collecting distinct values of short-, int-, long- and String-fields.</p>
+ * <p>Adds to Model class new static methods {@code distinctXxx(Collection<Model>)} aimed at collecting distinct values of short-, int-, long- and String-fields.</p>
  * <p>Configuration parameters:</p>
  * <ul>
  *     <li><i>(optional)</i> {@code distinctMethodPrefix} &mdash; the new method's prefix. Default value is {@code "distinct"}</li>
