@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2014.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+
+    <context id="tables" targetRuntime="MyBatis3" defaultModelType="flat">
+        <plugin type="org.mybatis.generator.plugins.RenameExampleClassPlugin" >
+            <property name="searchString" value="Example$"/>
+            <property name="replaceString" value="Criteria"/>
+        </plugin>
+        <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.ToStringPlugin" />
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.DistinctPlugin" />
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.MapPlugin" />
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.JoinPlugin">
+            <property name="generateModelConst" value="true"/>
+        </plugin>
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.AnyCriteriaPlugin" />
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.NullableInCriteriaPlugin" />
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.ExampleMethodsChainPlugin" />
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.SimpleOrCriteriaPlugin" />
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.PaginationPlugin" >
+            <property name="dialect" value="hsql"/>
+            <property name="optimize" value="true"/>
+            <property name="methodsChain" value="true"/>
+        </plugin>
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.ModelSettersChainPlugin">
+<!--            <property name="prefix" value=""/>-->
+        </plugin>
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.AddCriteriaActionsPlugin" />
+
+        <!--
+        <plugin type="org.mybatis.generator.plugins.AddComplexCriteriaPlugin" >
+            <property name="methodName" value="andIsVisible"/>
+            <property name="methodBody" value="andIsActiveEqualTo(true); andIsDeletedEqualTo(false);"/>
+        </plugin>
+        -->
+
+        <plugin type="org.mybatis.generator.plugins.SqlMapConfigPlugin" >
+            <property name="targetPackage" value="xyz.vsl.mybatis.generator.pluginsplus.gen"/>
+            <property name="targetProject" value="src/gen/resources"/>
+        </plugin>
+
+
+
+        <jdbcConnection driverClass="org.hsqldb.jdbc.JDBCDriver"
+                        connectionURL="jdbc:hsqldb:file:mybatis-generator-pluginsplus-tests/src/test/resources/db/testdb;ifexists=true;readonly=true"
+                        userId="sa" password="">
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <javaModelGenerator targetPackage="xyz.vsl.mybatis.generator.pluginsplus.gen" targetProject="MAVEN">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+            <property name="constructorBased" value="false"/>
+        </javaModelGenerator>
+
+        <sqlMapGenerator targetPackage="xyz.vsl.mybatis.generator.pluginsplus.gen" targetProject="MAVEN">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true" />
+        </sqlMapGenerator>
+
+        <javaClientGenerator type="XMLMAPPER" targetPackage="xyz.vsl.mybatis.generator.pluginsplus.gen" targetProject="MAVEN">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+        <table tableName="system_event_type" alias="_T_">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+        <table tableName="system_events">
+            <property name="distinctVarcharColumns" value="ulogin"/>
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+    </context>
+</generatorConfiguration>
