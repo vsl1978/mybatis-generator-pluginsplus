@@ -13,7 +13,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 
 /**
- * Generates an <tt>toString</tt> method that returns a string representation of all fields.
+ * Generates a <tt>toString</tt> method that returns a string representation of all fields.
  * 
  * @author Vladimir Lokhov
  * 
