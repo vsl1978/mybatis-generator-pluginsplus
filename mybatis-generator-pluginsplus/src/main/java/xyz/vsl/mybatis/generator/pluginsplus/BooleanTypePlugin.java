@@ -44,199 +44,15 @@ public class BooleanTypePlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean sqlMapResultMapWithBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        return modifyResultMap(element, introspectedTable);
-    }
-
-    @Override
-    public boolean sqlMapResultMapWithoutBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        return modifyResultMap(element, introspectedTable);
-    }
-
-    @Override
-    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        return modifyModelJavaTypes(topLevelClass, introspectedTable);
-    }
-
-    @Override
-    public boolean modelPrimaryKeyClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        return modifyModelJavaTypes(topLevelClass, introspectedTable);
-    }
-
-    @Override
-    public boolean modelExampleClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        changeColumnTypes(topLevelClass, introspectedTable);
-        removeCriteriaMethods(topLevelClass, introspectedTable, "GreaterThan", "GreaterThanOrEqualTo", "LessThan", "LessThanOrEqualTo", "Like", "NotLike", "In", "NotIn", "Between", "NotBetween");
-        replaceCriteriaParameters(topLevelClass, introspectedTable, "EqualTo", "NotEqualTo");
-        return true;
-    }
-
-    @Override
-    public boolean sqlMapInsertElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        return addPlaceholderTypeHandler(element, introspectedTable);
-    }
-
-    @Override
-    public boolean sqlMapInsertSelectiveElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        return addPlaceholderTypeHandler(element, introspectedTable);
-    }
-
-    @Override
-    public boolean sqlMapUpdateByExampleSelectiveElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        return addPlaceholderTypeHandler(element, introspectedTable);
-    }
-
-    @Override
-    public boolean sqlMapUpdateByExampleWithBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        return addPlaceholderTypeHandler(element, introspectedTable);
-    }
-
-    @Override
-    public boolean sqlMapUpdateByExampleWithoutBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        return addPlaceholderTypeHandler(element, introspectedTable);
-    }
-
-    @Override
-    public boolean sqlMapUpdateByPrimaryKeySelectiveElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        return addPlaceholderTypeHandler(element, introspectedTable);
-    }
-
-    @Override
-    public boolean sqlMapUpdateByPrimaryKeyWithBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        return addPlaceholderTypeHandler(element, introspectedTable);
-    }
-
-    @Override
-    public boolean sqlMapUpdateByPrimaryKeyWithoutBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
-        return addPlaceholderTypeHandler(element, introspectedTable);
-    }
-
-    @Override
     public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles() {
         return javaFiles;
     }
 
-    private final static Pattern PLACEHOLDER = Pattern.compile("(?<=\\#\\{)([^,\\}]++)");
-    private boolean addPlaceholderTypeHandler(XmlElement element, IntrospectedTable introspectedTable) {
-        final List<BooleanColumn<?>> columns = enumerateColumns(introspectedTable);
-        if (columns.isEmpty())
-            return true;
-        traverse(element, new FindElements() {
-            @Override
-            public boolean process(XmlElement parent, Element self, int position) {
-                String text = ((TextElement)self).getContent();
-                if (!text.contains("#{")) return false;
-                boolean modified = false;
-                StringBuffer sb = new StringBuffer();
-                Matcher matcher = PLACEHOLDER.matcher(text);
-                while (matcher.find()) {
-                    String property = matcher.group(1);
-                    for (BooleanColumn<?> c : columns) {
-                        int pos = property.lastIndexOf('.');
-                        if (pos >= 0 && pos < property.length() - 1)
-                            property = property.substring(pos + 1);
-                        if (Objects.equals(property, c.getIntrospectedColumn().getJavaProperty())) {
-                            matcher.appendReplacement(sb, property);
-                            sb.append(",typeHandler=").append(c.getPackage()).append('.').append(c.getHandlerClassName());
-                            modified = true;
-                            break;
-                        }
-                    }
-                }
-                if (!modified)
-                    return false;
-                matcher.appendTail(sb);
-                replaceLater(parent, position, new TextElement(sb.toString()));
-                return true;
-            }
-        }.when(TEXT_NODE));
-        return true;
-    }
-
-    private void changeColumnTypes(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    @Override
+    public void initialized(IntrospectedTable introspectedTable) {
         List<BooleanColumn<?>> columns = enumerateColumns(introspectedTable);
-        for (BooleanColumn<?> c : columns)
-            c.getIntrospectedColumn().setFullyQualifiedJavaType(BOOLEAN);
-    }
-
-    private void removeCriteriaMethods(TopLevelClass topLevelClass, IntrospectedTable introspectedTable, String ... methods) {
-        InnerClass generatedCriteria = null;
-        for (InnerClass innerClass : topLevelClass.getInnerClasses()) {
-            if ("GeneratedCriteria".equals(innerClass.getType().getShortName())) {
-                generatedCriteria = innerClass;
-            }
-        }
-        if (generatedCriteria == null)
-            return;
-
-        List<BooleanColumn<?>> columns = enumerateColumns(introspectedTable);
-        for (BooleanColumn<?> c : columns) {
-            Set<String> set = new HashSet<String>();
-            for (String m : methods)
-                set.add("and"+camel(c.getIntrospectedColumn().getJavaProperty())+m);
-            for (Iterator<Method> it = generatedCriteria.getMethods().iterator(); it.hasNext(); )
-                if (set.contains(it.next().getName()))
-                    it.remove();
-        }
-    }
-
-    private void replaceCriteriaParameters(TopLevelClass topLevelClass, IntrospectedTable introspectedTable, String ... methods) {
-        InnerClass generatedCriteria = null;
-        for (InnerClass innerClass : topLevelClass.getInnerClasses()) {
-            if ("GeneratedCriteria".equals(innerClass.getType().getShortName())) {
-                generatedCriteria = innerClass;
-            }
-        }
-        if (generatedCriteria == null)
-            return;
-
-        List<BooleanColumn<?>> columns = enumerateColumns(introspectedTable);
-        for (BooleanColumn<?> c : columns) {
-            Set<String> set = new HashSet<String>();
-            for (String m : methods)
-                set.add("and"+camel(c.getIntrospectedColumn().getJavaProperty())+m);
-            for (Method m : generatedCriteria.getMethods())
-                if (set.contains(m.getName()))
-                    m.getParameters().set(0, new Parameter(BOOLEAN, m.getParameters().get(0).getName()));
-        }
-    }
-
-    private boolean modifyModelJavaTypes(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        if (topLevelClass.getFields() == null || topLevelClass.getFields().isEmpty())
-            return true;
-        List<BooleanColumn<?>> columns = enumerateColumns(introspectedTable);
-        if (columns.isEmpty())
-            return true;
         for (final BooleanColumn<?> column : columns) {
-            boolean found = false;
-            for (Field f : topLevelClass.getFields()) {
-                if (Objects.equals(f.getName(), column.getIntrospectedColumn().getJavaProperty())) {
-                    f.setType(BOOLEAN);
-                    found = true;
-                }
-            }
-            if (!found) continue;
-            for (Method m : topLevelClass.getMethods()) {
-                String methodName = m.getName();
-                String getter = "get"+camel(column.getIntrospectedColumn().getJavaProperty());
-                String setter = "set"+camel(column.getIntrospectedColumn().getJavaProperty());
-                //System.out.println("compare "+methodName+" with "+getter+" and "+setter);
-                if (Objects.equals(methodName, getter)) {
-                    m.setReturnType(BOOLEAN);
-                }
-                else if (Objects.equals(methodName, setter)) {
-                    Parameter param = m.getParameters().get(0);
-                    m.getParameters().set(0, new Parameter(BOOL, param.getName()));
-                }
-            }
-        }
-        return true;
-    }
-
-    private boolean modifyResultMap(XmlElement element, IntrospectedTable introspectedTable) {
-        List<BooleanColumn<?>> columns = enumerateColumns(introspectedTable);
-        if (columns.isEmpty()) return true;
-        for (final BooleanColumn<?> column : columns) {
+            column.getIntrospectedColumn().setFullyQualifiedJavaType(BOOLEAN);
             if (!handlers.contains(column.getHandlerId())) {
                 Context ctx = introspectedTable.getContext();
 
@@ -254,19 +70,10 @@ public class BooleanTypePlugin extends PluginAdapter {
                 CompilationUnit unit = new Template(column.getHandlerTemplate(), column.getPackage(), column.getHandlerClassName(), sm);
                 javaFiles.add(new GeneratedJavaFile(unit, targetProject, fileEncoding, javaFormatter));
             }
-
-            traverse(element, new FindElements() {
-                @Override
-                public boolean process(XmlElement parent, Element self, int position) {
-                    if (!column.getIntrospectedColumn().getJavaProperty().equals(getAttribute((XmlElement) self, "property")))
-                        return false;
-                    ((XmlElement) self).addAttribute(a("typeHandler", column.getPackage()+"."+column.getHandlerClassName()));
-                    return true;
-                }
-            }.when(ELEMENT.and(ancestorsAndSelf("result"))));
+            column.getIntrospectedColumn().setTypeHandler(column.getPackage()+"."+column.getHandlerClassName());
         }
-        return true;
     }
+
 
     private final static Pattern COLUMN = Pattern.compile("^\\s*+(.+?)\\s*+(?:\\(\\s*+(.+?)\\s*+/\\s*+(.+?)\\s*+\\))?\\s*$");
 
