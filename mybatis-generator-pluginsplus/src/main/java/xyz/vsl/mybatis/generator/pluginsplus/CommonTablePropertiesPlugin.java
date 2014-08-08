@@ -22,6 +22,17 @@ import java.util.regex.Pattern;
  *     <li><i>(optional)</i> excludeTables &mdash; regular expression that excludes tables</li>
  * </ul></p>
  * <p>It is strongly recommended to use this plugin before any other.</p>
+ * <p>Example:
+ * <pre>
+ * &lt;plugin type="xyz.vsl.mybatis.generator.pluginsplus.CommonTablePropertiesPlugin"&gt;
+ *     &lt;property name="ignoreQualifiersAtRuntime" value="true"/&gt;
+ * &lt;/plugin&gt;
+ * &lt;plugin type="xyz.vsl.mybatis.generator.pluginsplus.CommonTablePropertiesPlugin"&gt;
+ *     &lt;property name="tables" value="^(?i)ext_reg_.+$"/&gt;
+ *     &lt;property name="modelOnly" value="true"/&gt;
+ * &lt;/plugin&gt;
+ * </pre>
+ * </p>
  * @author Vladimir Lokhov
  */
 public class CommonTablePropertiesPlugin extends PluginAdapter {
