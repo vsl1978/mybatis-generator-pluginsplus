@@ -41,6 +41,3 @@ Adds limit and offset (top, first...skip, offset...row...fetch next, etc) clause
 **SimpleOrCriteriaPlugin**  
 Provides the ability to use criteria like "... and (a or b or c) and ..."
 
-**ToStringPlugin**  
-Generates a toString method that returns a string representation of all fields.
-
