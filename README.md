@@ -48,7 +48,9 @@ Modifies Example class to allow using null and empty lists as parameter of andXx
 Adds limit and offset (top, first...skip, offset...row...fetch next, etc) clause to the Example class.
 
 **SelectiveWithNullPlugin**  
-Provides the ability to store modified fields (**including null-values**) using insertSelective and updateBy*Selective methods.
+Provides the ability to store modified fields (**including null-values**) using insertSelective and updateBy*Selective methods.  
+fooMapper.updateByPrimaryKeySelectiveWithNull(new Foo().setId(42).setComment(null));
+
 
 **SimpleOrCriteriaPlugin**  
 Provides the ability to use criteria like "... and (a or b or c) and ..."
