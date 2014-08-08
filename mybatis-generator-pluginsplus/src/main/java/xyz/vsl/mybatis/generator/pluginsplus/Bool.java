@@ -13,4 +13,12 @@ class Bool {
         else
             return ("true".equals(s) || "yes".equals(s) || "on".equals(s) || "да".equals(s));
     }
+
+    public static Boolean bool(String s) {
+        if ("true".equals(s) || "yes".equals(s) || "on".equals(s) || "да".equals(s))
+            return Boolean.TRUE;
+        if ("false".equals(s) || "no".equals(s) || "off".equals(s) || "нет".equals(s))
+            return Boolean.FALSE;
+        return null;
+    }
 }

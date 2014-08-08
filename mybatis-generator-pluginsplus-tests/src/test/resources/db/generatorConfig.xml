@@ -21,7 +21,15 @@
 
 <generatorConfiguration>
 
-    <context id="tables" targetRuntime="MyBatis3" defaultModelType="flat">
+    <context id="tables" targetRuntime="MyBatis3" defaultModelType="flat"> <!-- hierarchical, conditional -->
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.CommonTablePropertiesPlugin">
+            <property name="ignoreQualifiersAtRuntime" value="true"/>
+        </plugin>
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.JDBCTypesPlugin">
+            <property name="from:CLOB" value="VARCHAR"/>
+            <property name="from:/(?i)TIMESTAMP\b.*/" value="TIMESTAMP, java.util.Date"/>
+        </plugin>
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.BooleanTypePlugin" />
         <plugin type="org.mybatis.generator.plugins.RenameExampleClassPlugin" >
             <property name="searchString" value="Example$"/>
             <property name="replaceString" value="Criteria"/>
@@ -31,6 +39,11 @@
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.DistinctPlugin" />
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.MapPlugin" />
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.JoinPlugin"/>
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.SelectiveWithNullPlugin">
+            <property name="insertSelectiveWithNullMethodName" value="insertSelectiveWithNull"/>
+            <property name="updateByExampleSelectiveWithNullMethodName" value="updateSelectiveWithNull"/>
+            <property name="updateByPrimaryKeySelectiveWithNullMethodName" value="-"/>
+        </plugin>
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.AnyCriteriaPlugin" />
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.NullableInCriteriaPlugin" />
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.ExampleMethodsChainPlugin" />
@@ -39,7 +52,7 @@
             <property name="dialect" value="hsql"/>
         </plugin>
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.ModelSettersChainPlugin">
-<!--            <property name="prefix" value=""/>-->
+            <property name="prefix" value=""/>
         </plugin>
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.AddCriteriaActionsPlugin" />
 
@@ -82,11 +95,13 @@
         </javaClientGenerator>
 
         <table tableName="system_event_type" alias="_T_">
+            <property name="boolean-varchar-columns" value="is_active"/>
             <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
 
-        <table tableName="system_events">
+        <table schema="public" tableName="system_events">
             <property name="distinctVarcharColumns" value="ulogin"/>
+            <property name="boolean-integer-columns" value="successful, is_deleted"/>
             <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
 

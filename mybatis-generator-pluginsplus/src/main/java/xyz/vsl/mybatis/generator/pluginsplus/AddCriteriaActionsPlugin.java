@@ -5,8 +5,10 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.internal.rules.Rules;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.regex.Pattern;
 
 import static org.mybatis.generator.api.dom.java.JavaVisibility.PUBLIC;
 import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.*;
@@ -217,6 +219,11 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
 
     private boolean generateCriteriaMethods;
 
+    private Pattern userDefinedMethods;
+
+    private TopLevelClass exampleClass;
+    private Interface mapperClass;
+
     @Override
     public boolean validate(List<String> strings) {
         listMethod = Objects.nvl(Str.trim(properties.getProperty("listMethodName")), "list");
@@ -235,6 +242,8 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
         updateSelectiveWithBLOBsMethod = Objects.nvl(Str.trim(properties.getProperty("updateSelectiveWithBLOBsMethodName")), updateSelectiveMethod+"WithBLOBs");
 
         generateCriteriaMethods = Bool.bool(Str.trim(properties.getProperty("generateCriteriaMethods")), true);
+
+        userDefinedMethods = Pattern.compile(Objects.nvl(Str.trim(properties.getProperty("userDefinedMethods")), "^(.+WithNull)$"));
 
         return true;
     }
@@ -256,9 +265,33 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
         addUpdateMethods(topLevelClass, introspectedTable, cls, updateSelectiveMethod, updateSelectiveWithBLOBsMethod, true);
         addDeleteMethods(topLevelClass, introspectedTable, cls);
         addCountMethods(topLevelClass, introspectedTable, cls);
+        if (mapperClass != null) {
+            addUserDefinedMethods(topLevelClass, mapperClass, introspectedTable, cls);
+            mapperClass = null;
+            exampleClass = null;
+        } else {
+            exampleClass = topLevelClass;
+        }
 
         addCriteriaMethods(topLevelClass, newMethodsStart);
 
+        return true;
+    }
+
+    @Override
+    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        if (topLevelClass != null)
+            return false;
+        if (exampleClass != null) {
+            MyBatisClasses cls = MyBatisClasses.calculate(exampleClass, introspectedTable);
+            int newMethodsStart = exampleClass.getMethods().size();
+            addUserDefinedMethods(exampleClass, interfaze, introspectedTable, cls);
+            addCriteriaMethods(exampleClass, newMethodsStart);
+            exampleClass = null;
+            mapperClass = null;
+        } else {
+            mapperClass = interfaze;
+        }
         return true;
     }
 
@@ -411,9 +444,45 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
                     "return sql.getMapper(" + cls.names.mapper + ".class).countByExample(this);"
             )));
             topLevelClass.addMethod(method(
-                    PUBLIC, INT, countMethod, _(cls.types.mapper, "mapper"), __(
-                            "return mapper.countByExample(this);"
-                    )));
+                PUBLIC, INT, countMethod, _(cls.types.mapper, "mapper"), __(
+                    "return mapper.countByExample(this);"
+            )));
+        }
+    }
+
+    private void addUserDefinedMethods(TopLevelClass exampleClass, Interface mapperClass, IntrospectedTable introspectedTable, MyBatisClasses cls) {
+        for (Method action : mapperClass.getMethods()) {
+            if (!userDefinedMethods.matcher(action.getName()).matches()) continue;
+            StringBuilder args = new StringBuilder();
+            List<Parameter> params = new ArrayList<Parameter>();
+            boolean example = false;
+            if (action.getParameters() != null)
+                for (Parameter param : action.getParameters()) {
+                    String name;
+                    if (Objects.equals(param.getType(), exampleClass.getType())) {
+                        example = true;
+                        name = "this";
+                    } else {
+                        name = param.getName();
+                        params.add(new Parameter(param.getType(), name));
+                    }
+                    if (args.length() > 0)
+                        args.append(", ");
+                    args.append(name);
+                }
+            if (!example) {
+                //System.err.println("Invalid user-defined mapper method: "+action.getName());
+                continue;
+            }
+
+            exampleClass.addMethod(method(
+                PUBLIC, INT, action.getName(), _(sqlSession, "sql"), params.toArray(new Parameter[params.size()]), __(
+                    "return sql.getMapper(" + cls.names.mapper + ".class)."+action.getName()+"("+args+");"
+            )));
+            exampleClass.addMethod(method(
+                PUBLIC, INT, action.getName(), _(cls.types.mapper, "mapper"), params.toArray(new Parameter[params.size()]), __(
+                    "return mapper."+action.getName()+"("+args+");"
+            )));
         }
     }
 }

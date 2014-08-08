@@ -29,6 +29,7 @@ final class MBGenerator {
         public final static FullyQualifiedJavaType LIST_OF_LONG  = new FullyQualifiedJavaType("java.util.List<java.lang.Long>");
         public final static FullyQualifiedJavaType STRING = FullyQualifiedJavaType.getStringInstance();
         public final static FullyQualifiedJavaType BOOL = FullyQualifiedJavaType.getBooleanPrimitiveInstance();
+        public final static FullyQualifiedJavaType BOOLEAN = new FullyQualifiedJavaType("java.lang.Boolean");
         public final static FullyQualifiedJavaType OBJECT = FullyQualifiedJavaType.getObjectInstance();
         public final static FullyQualifiedJavaType CRITERIA  = FullyQualifiedJavaType.getCriteriaInstance();
         public final static FullyQualifiedJavaType INT = FullyQualifiedJavaType.getIntInstance();
@@ -154,6 +155,12 @@ final class MBGenerator {
         return args;
     }
 
+    public static Parameter[] __(Method method) {
+        if (method == null || method.getParameters() == null)
+            return new Parameter[0];
+        return method.getParameters().toArray(new Parameter[method.getParameters().size()]);
+    }
+
     public static void addBoolField(InnerClass criterion, String name) {
         for (Field f : criterion.getFields())
             if (f.getName().equals(name)) return;
@@ -191,7 +198,8 @@ final class MBGenerator {
         for (Object o : children) {
             if (o == null) continue;
             if (o instanceof Attribute) continue;
-            if (o instanceof Element) e.addElement((Element)o);
+            if (o instanceof DocumentFragment) e.getElements().addAll(((DocumentFragment)o).getElements());
+            else if (o instanceof Element) e.addElement((Element)o);
             else e.addElement(new TextElement(String.valueOf(o)));
         }
         return e;
@@ -354,6 +362,11 @@ final class MBGenerator {
                 count++;
         }
 
+        public XmlElement ancestor(int n) {
+            if (stack.size() <= n) return null;
+            return stack.get(stack.size() - n - 1);
+        }
+
         @Override
         public Integer result() {
             return count;
@@ -368,6 +381,17 @@ final class MBGenerator {
         for (Element e : parent.getElements()) {
             idx++;
             if (e == element) break;
+        }
+        return idx;
+    }
+
+    public static int indexOf(XmlElement parent, String elementName) {
+        int idx = -1;
+        if (parent == null || elementName == null) return idx;
+        if (parent.getElements() == null) return idx;
+        for (Element e : parent.getElements()) {
+            idx++;
+            if (e instanceof XmlElement && elementName.equals(((XmlElement)e).getName())) break;
         }
         return idx;
     }
@@ -432,6 +456,7 @@ final class MBGenerator {
             @Override
             public boolean test(Stack<XmlElement> xmlElements, Element element) {
                 int pos = namesFromTopAncestorToSelf.length - 1;
+                if (!(element instanceof XmlElement)) return false;
                 if (!Objects.equals(namesFromTopAncestorToSelf[pos], ((XmlElement)element).getName()))
                     return false;
                 ListIterator<XmlElement> it = xmlElements.listIterator(xmlElements.size());
@@ -500,6 +525,20 @@ final class MBGenerator {
             for (Attribute a : e.getAttributes())
                 if (Objects.equals(a.getName(), name)) return a.getValue();
         return null;
+    }
+
+    public static XmlElement setAttribute(XmlElement e, String name, String value) {
+        boolean remove = Str.trim(value) == null;
+        if (e.getAttributes() != null)
+            for (ListIterator<Attribute> it = e.getAttributes().listIterator(); it.hasNext(); ) {
+                Attribute a = it.next();
+                if (Objects.equals(a.getName(), name)) {
+                    if (remove) it.remove();
+                    else it.set(new Attribute(a.getName(), value));
+                    break;
+                }
+            }
+        return e;
     }
 
     public static String getTextContent(XmlElement e) {

@@ -1,9 +1,13 @@
 package xyz.vsl.mybatis.generator.pluginsplus;
 
-import java.util.List;
-import java.util.ListIterator;
-import java.util.StringTokenizer;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.mybatis.generator.api.GeneratedXmlFile;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
@@ -21,16 +25,23 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  * <p>Adds new methods to Example class providing the ability to join another tables</p>
  * <ul>
  *     <li>{@code addFromClause(String joinExpression)}</li>
- *     <li>{@code addFromClause(String formatString, Object arg0, Object ... args1n)}</li>
+ *     <li>{@code addFromClause(String formatString, Object firstArg, Object ... secondAndFurtherArgs)}</li>
  * </ul>
- * <p>The name of the method can be configured by setting {@code methodName} plugin's property. Default value is {@code addFromClause}</p>
+ * <p>The name of the method can be configured by setting {@code methodName} plugin's property. Default value is {@code addFromClause}.</p>
+ * <p>This plugin also provides the ability to fix or remove table alias from {@code deleteByExample} statement. Property
+ * {@code supportsAliasInDelete} specifies how the plugin process {@code deleteByExample}:<ul>
+ *     <li>{@code true} &mdash; {@code deleteByExample} is unchanged. <b>Default value</b></li>
+ *     <li>{@code mssql} &mdash; modifies {@code deleteByExample} to conform SQL Server syntax (<tt>delete <i>alias</i> from <i>table</i> <i>alias</i> where ...</tt>)</li>
+ *     <li>{@code false} &mdash; remove alias from {@code deleteByExample}. Adds new method {@code getUnaliasedCondition()} to the Example$Criterion class and {@code Delete_Example_Where_Clause} element to Mapper xml</li>
+ * </ul>
+ * </p>
  * <p>Example:<br/>
  * <tt>new FooExample().addFromClause("join foo_type ft on ft.id=foo.type_id and ft.code='bar'");</tt><br/>
  * or, using {@link xyz.vsl.mybatis.generator.pluginsplus.AnyCriteriaPlugin}:<br/>
  * <tt>new FooExample().addFromClause("join foo_type ft on ft.id=foo.type_id").createCriteria().andEqualTo("ft.code", "bar");</tt><br/>
  * or<br/>
  * <tt>new FooExample().addFromClause("join foo_type ft on ft.id=%s.type_id", FooExample.ALIAS).createCriteria().andEqualTo("ft.code", "bar");</tt><br/>
- * where {@code FooExample.ALIAS} is auto-generated field. This field is initialized to contain the table alias (&lt;table&nbsp;...&nbsp;alias="..."&gt;)
+ * where {@code FooExample.ALIAS} is auto-wasGenerated field. This field is initialized to contain the table alias (&lt;table&nbsp;...&nbsp;alias="..."&gt;)
  * or table name if alias is not specified.
  * </p>
  * <p></p>
@@ -41,12 +52,16 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  * </p>
  * @author Vladimir Lokhov
  */
-public class JoinPlugin extends PluginAdapter {
+public class JoinPlugin extends IntrospectorPlugin {
     private String methodName;
     private String tableConstName;
     private String aliasConstName;
     private boolean generateExampleConst;
     private boolean generateModelConst;
+
+    private DeleteStatement deleteStatement;
+
+    private XmlElement exampleWhereClauseElement;
 
     public boolean validate(List<String> warnings) {
         methodName = Objects.nvl(Str.trim(properties.getProperty("methodName")), "addFromClause");
@@ -54,6 +69,17 @@ public class JoinPlugin extends PluginAdapter {
         aliasConstName = Objects.nvl(Str.trim(properties.getProperty("aliasConstName")), "ALIAS");
         generateExampleConst = Bool.bool(Str.trim(properties.getProperty("generateExampleConst")), true);
         generateModelConst = Bool.bool(Str.trim(properties.getProperty("generateModelConst")), false);
+
+        String delete = Objects.nvl(Str.lower(Str.trim(properties.getProperty("supportsAliasInDelete"))), "true");
+        if ("false".equals(delete) || "no".equals(delete))
+            deleteStatement = new NoAliasDeleteStatement();
+        else if (delete.matches("(ms|microsoft)?\\s*sql\\s*server|(ms|microsoft)\\s*sql"))
+            deleteStatement = new MSSQLDeleteStatement();
+        else
+            deleteStatement = new DeleteStatement();
+
+        //supportsAliasInUpdate = Bool.bool(Str.trim(properties.getProperty("supportsAliasInUpdate")));
+
         return true;
     }
 
@@ -80,6 +106,7 @@ public class JoinPlugin extends PluginAdapter {
         if (generateExampleConst) addTableNameConstant(topLevelClass, introspectedTable);
         addFromField(topLevelClass, introspectedTable);
         fixCriteriaColumns(topLevelClass, introspectedTable);
+        deleteStatement.modelExampleClassGenerated(topLevelClass, introspectedTable);
 
         for (Method m : topLevelClass.getMethods()) {
             if (!"clear".equals(m.getName())) continue;
@@ -89,7 +116,20 @@ public class JoinPlugin extends PluginAdapter {
         return true;
     }
 
-     private void addTableNameConstant(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    @Override
+    public boolean sqlMapExampleWhereClauseElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+        if ("Example_Where_Clause".equals(getAttribute(element, "id")))
+            exampleWhereClauseElement = element;
+        return true;
+    }
+
+    @Override
+    public boolean sqlMapDeleteByExampleElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+        deleteStatement.deleteByExampleElementGenerated(element, introspectedTable);
+        return true;
+    }
+
+    private void addTableNameConstant(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
          String alias = introspectedTable.getFullyQualifiedTable().getAlias();
          String table = MBGenerator.tableName(introspectedTable);
          if (!StringUtility.stringHasValue(alias))
@@ -98,6 +138,8 @@ public class JoinPlugin extends PluginAdapter {
          topLevelClass.addField(field(PUBLIC, FINAL, STATIC, STRING, constName, _("`"+table+"`")).javadoc("This field was generated by JoinPlugin", "Name of the database table represented by this class"));
          constName = Objects.nvl(Str.trim(introspectedTable.getTableConfigurationProperty("aliasConstName")), aliasConstName);
          topLevelClass.addField(field(PUBLIC, FINAL, STATIC, STRING, constName, _("`"+alias+"`")).javadoc("This field was generated by JoinPlugin", "SQL query alias of the database table represented by this class"));
+         constName = Objects.nvl(Str.trim(introspectedTable.getTableConfigurationProperty("aliasConstName")), aliasConstName)+"_";
+         topLevelClass.addField(field(PUBLIC, FINAL, STATIC, STRING, constName, _("`"+alias+".`")).javadoc("This field was generated by JoinPlugin", "SQL query alias of the database table represented by this class"));
     }
 
     private boolean addJoinXMLs(final XmlElement element, final IntrospectedTable introspectedTable) {
@@ -179,9 +221,9 @@ public class JoinPlugin extends PluginAdapter {
         topLevelClass.addField(field(PRIVATE, LIST_OF_STRING, "from"));
 
         topLevelClass.addMethod(method(
-                PUBLIC, LIST_OF_STRING, "getFrom", __(
-                        "return from;"
-                )));
+            PUBLIC, LIST_OF_STRING, "getFrom", __(
+                "return from;"
+        )));
 
         topLevelClass.addMethod(method(
             PUBLIC, topLevelClass.getType(), methodName, _(STRING, "join"), __(
@@ -192,32 +234,32 @@ public class JoinPlugin extends PluginAdapter {
         )));
 
         topLevelClass.addMethod(method(
-            PUBLIC, topLevelClass.getType(), methodName, _(STRING, "formatString"), _(OBJECT, "arg0"), _(OBJECT, "args1n", true), __(
+            PUBLIC, topLevelClass.getType(), methodName, _(STRING, "formatString"), _(OBJECT, "firstArg"), _(OBJECT, "secondAndFurtherArgs", true), __(
                 "if (formatString == null || (formatString = formatString.trim()).length() == 0) return this;",
                 "if (from == null) from = new java.util.ArrayList<String>();",
-                "Object[] temp = new Object[(args1n == null ? 0 : args1n.length) + 1];",
-                "if (args1n != null) System.arraycopy(args1n, 0, temp, 1, args1n.length);",
-                "temp[0] = arg0;",
+                "Object[] temp = new Object[(secondAndFurtherArgs == null ? 0 : secondAndFurtherArgs.length) + 1];",
+                "if (secondAndFurtherArgs != null) System.arraycopy(secondAndFurtherArgs, 0, temp, 1, secondAndFurtherArgs.length);",
+                "temp[0] = firstArg;",
                 "String formatted = String.format(formatString, temp);",
                 "from.add(formatted);",
                 "return this;"
         )).javadoc(
                 "@param formatString A {@link java.util.Formatter format string} for join expression",
-                "@param arg0 First argument referenced by the format specifiers in the format string",
-                "@param args1n Second and further arguments referenced by the format specifiers in the format string"
+                "@param firstArg First argument referenced by the format specifiers in the format string",
+                "@param secondAndFurtherArgs Second and further arguments referenced by the format specifiers in the format string"
         ));
     }
 
     private void fixCriteriaColumns(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        if (introspectedTable.getFullyQualifiedTable() != null && StringUtility.stringHasValue(introspectedTable.getFullyQualifiedTable().getAlias()))
-            return;
-
         InnerClass generatedCriteria = null;
         for (InnerClass innerClass : topLevelClass.getInnerClasses()) {
             if ("GeneratedCriteria".equals(innerClass.getType().getShortName())) {
                 generatedCriteria = innerClass;
             }
         }
+
+        if (introspectedTable.getFullyQualifiedTable() != null && StringUtility.stringHasValue(introspectedTable.getFullyQualifiedTable().getAlias()))
+            return;
         if (generatedCriteria == null)
             return;
 
@@ -233,5 +275,75 @@ public class JoinPlugin extends PluginAdapter {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean sqlMapGenerated(GeneratedXmlFile sqlMap, IntrospectedTable introspectedTable) {
+        deleteStatement.sqlMapGenerated(getMapperXmlRoot(sqlMap), introspectedTable);
+        return true;
+    }
+
+    private class DeleteStatement {
+        public void deleteByExampleElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+        }
+        public void sqlMapGenerated(XmlElement root, IntrospectedTable introspectedTable) {
+        }
+        public void modelExampleClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+        }
+    }
+
+    private class MSSQLDeleteStatement extends DeleteStatement {
+        @Override
+        public void deleteByExampleElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+            if (introspectedTable.getFullyQualifiedTable() == null || !StringUtility.stringHasValue(introspectedTable.getFullyQualifiedTable().getAlias()))
+                return;
+            final String alias = introspectedTable.getFullyQualifiedTable().getAlias();
+            traverse(element, new ReplaceText(new TextReplacer("^(?i)(\\s*delete)(\\s*)(from)", "$1$2" + Matcher.quoteReplacement(alias) + "$2$3"), null));
+        }
+    }
+
+    private class NoAliasDeleteStatement extends DeleteStatement {
+        private final static String INCLUDE = "Delete_Example_Where_Clause";
+        @Override
+        public void deleteByExampleElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+            if (introspectedTable.getFullyQualifiedTable() == null || !StringUtility.stringHasValue(introspectedTable.getFullyQualifiedTable().getAlias()))
+                return;
+            final String alias = introspectedTable.getFullyQualifiedTable().getAlias();
+            traverse(element, new ReplaceText(
+                    new TextReplacer("^(?i)(\\s*delete\\s*from\\s*.+?)\\s*"+Pattern.quote(alias), "$1"),
+                    new TextReplacer("^Example_Where_Clause$", INCLUDE)
+            ));
+        }
+        public void sqlMapGenerated(XmlElement root, IntrospectedTable introspectedTable) {
+            if (introspectedTable.getFullyQualifiedTable() == null || !StringUtility.stringHasValue(introspectedTable.getFullyQualifiedTable().getAlias()))
+                return;
+            if (exampleWhereClauseElement == null)
+                return;
+
+            XmlElement include = setAttribute(traverse(exampleWhereClauseElement, new CopyXml()), "id", INCLUDE);
+            traverse(include, new ReplaceText(new TextReplacer("\\.condition\\b", "\\.unaliasedCondition")));
+            root.addElement(include);
+        }
+
+        @Override
+        public void modelExampleClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+            InnerClass criterion = null;
+            for (InnerClass innerClass : topLevelClass.getInnerClasses()) {
+                if ("Criterion".equals(innerClass.getType().getShortName())) {
+                    criterion = innerClass;
+                }
+            }
+            if (criterion != null) {
+                String constName = Objects.nvl(Str.trim(introspectedTable.getTableConfigurationProperty("aliasConstName")), aliasConstName)+"_";
+                criterion.addMethod(method(PUBLIC, STRING, "getUnaliasedCondition", _(
+                    "return condition != null && condition.startsWith(%s) ? condition.substring(%1$s.length()) : condition;", constName
+                )));
+            }
+        }
+    }
+
+    @Override
+    public void initialized(IntrospectedTable introspectedTable) {
+        exampleWhereClauseElement = null;
     }
 }

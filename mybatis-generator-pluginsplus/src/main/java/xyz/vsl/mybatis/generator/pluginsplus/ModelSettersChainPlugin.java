@@ -54,48 +54,20 @@ public class ModelSettersChainPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        return generateNewSetters ? generateSetters(topLevelClass, introspectedTable) : true;
-    }
-
-    @Override
-    public boolean modelPrimaryKeyClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        return generateNewSetters ? generateSetters(topLevelClass, introspectedTable) : true;
-    }
-
-    @Override
-    public boolean modelRecordWithBLOBsClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        return generateNewSetters ? generateSetters(topLevelClass, introspectedTable) : true;
-    }
-
-    @Override
     public boolean modelSetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
-        if (generateNewSetters) return true;
-        method.setReturnType(topLevelClass.getType());
-        method.addBodyLine("return this;");
-        return true;
-    }
-
-    private boolean generateSetters(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
-        List<IntrospectedColumn> columns;
-
-        if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
-            columns = introspectedTable.getNonBLOBColumns();
+        if (generateNewSetters) {
+            Method alt = method(method.getVisibility(), topLevelClass.getType(), gen.name(introspectedColumn.getJavaProperty()), __(method));
+            if (method.getBodyLines() != null)
+                for (String line : method.getBodyLines())
+                    alt.addBodyLine(line);
+            alt.addBodyLine("return this;");
+            topLevelClass.addMethod(alt);
         } else {
-            columns = introspectedTable.getAllColumns();
+            method.setReturnType(topLevelClass.getType());
+            method.addBodyLine("return this;");
         }
-
-        for (IntrospectedColumn introspectedColumn : columns) {
-            FullyQualifiedJavaType column = introspectedColumn.getFullyQualifiedJavaType();
-            String field = introspectedColumn.getJavaProperty();
-            topLevelClass.addMethod(method(
-                PUBLIC, topLevelClass.getType(), gen.name(field), _(column, field), __(
-                    "this."+field+" = "+field+";",
-                    "return this;"
-            )));
-        }
-
         return true;
     }
+
 
 }

@@ -53,13 +53,11 @@
       <useDefaultExcludes>true</useDefaultExcludes>
     </fileSet>
     <fileSet>
-      <excludes>
-          <exclude>**/System*.java</exclude>
-          <exclude>**/System*.xml</exclude>
-      </excludes>
       <directory>mybatis-generator-pluginsplus-tests/src</directory>
       <outputDirectory>mybatis-generator-pluginsplus-tests</outputDirectory>
-      <useDefaultExcludes>true</useDefaultExcludes>
+      <excludes>
+          <exclude>**/gen/**</exclude>
+      </excludes>
     </fileSet>
 
   </fileSets>

@@ -1,11 +1,14 @@
 package xyz.vsl.mybatis.generator.pluginsplus;
 
+import org.mybatis.generator.api.GeneratedXmlFile;
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.xml.Element;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 import org.mybatis.generator.internal.util.StringUtility;
 
 import static org.mybatis.generator.api.dom.java.JavaVisibility.PRIVATE;
@@ -49,9 +52,36 @@ import java.util.regex.Pattern;
  * </p>
  * @author Vladimir Lokhov
  */
-public class PaginationPlugin extends PluginAdapter {
+public class PaginationPlugin extends IntrospectorPlugin {
     private abstract class DBDialect {
         public abstract boolean modifyXml(XmlElement element, IntrospectedTable introspectedTable, boolean baseFields, boolean blobFields);
+
+        public boolean appendNewElementsToXml(XmlElement root, IntrospectedTable introspectedTable) {
+            return true;
+        }
+
+        protected void copyColumnsList(XmlElement root, IntrospectedTable introspectedTable) {
+            String alias = introspectedTable.getFullyQualifiedTable().getAlias();
+            if (!StringUtility.stringHasValue(alias))
+                return;
+            if (introspectedTable.hasBaseColumns()) {
+                StringBuilder sb = new StringBuilder();
+                for (IntrospectedColumn c : introspectedTable.getNonBLOBColumns()) {
+                    if (sb.length() > 0) sb.append(", ");
+                    sb.append(MyBatis3FormattingUtilities.getRenamedColumnNameForResultMap(c));
+                }
+                root.addElement(e("sql", a("id", "Base_Column_Label_List"), sb.toString()));
+            }
+            if (introspectedTable.hasBLOBColumns()) {
+                StringBuilder sb = new StringBuilder();
+                for (IntrospectedColumn c : introspectedTable.getBLOBColumns()) {
+                    if (sb.length() > 0) sb.append(", ");
+                    sb.append(MyBatis3FormattingUtilities.getRenamedColumnNameForResultMap(c));
+                }
+                root.addElement(e("sql", a("id", "Blob_Column_Label_List"), sb.toString()));
+            }
+        }
+
 
         @Override
         public String toString() {
@@ -139,6 +169,11 @@ public class PaginationPlugin extends PluginAdapter {
         return true;
     }
 
+    @Override
+    public boolean sqlMapGenerated(GeneratedXmlFile sqlMap, IntrospectedTable introspectedTable) {
+        return dialect.appendNewElementsToXml(getMapperXmlRoot(sqlMap), introspectedTable);
+    }
+
     private class PostgreSQL extends DBDialect {
         @Override
         public boolean modifyXml(XmlElement element, IntrospectedTable introspectedTable, boolean baseFields, boolean blobFields) {
@@ -152,12 +187,20 @@ public class PaginationPlugin extends PluginAdapter {
         }
     };
 
+
     private class Oracle extends DBDialect {
+        @Override
+        public boolean appendNewElementsToXml(XmlElement root, IntrospectedTable introspectedTable) {
+            copyColumnsList(root, introspectedTable);
+            return true;
+        }
+
         @Override
         public boolean modifyXml(XmlElement element, IntrospectedTable introspectedTable, boolean baseFields, boolean blobFields) {
             String alias = introspectedTable.getFullyQualifiedTable().getAlias();
             String table = MBGenerator.tableName(introspectedTable);
-            if (!StringUtility.stringHasValue(alias))
+            boolean hasAlias = StringUtility.stringHasValue(alias);
+            if (!hasAlias)
                 alias = table;
 
             StringMacro m = new StringMacro();
@@ -169,9 +212,9 @@ public class PaginationPlugin extends PluginAdapter {
 
             element.addElement(0, e("if", a("test", "orderByClause != null and limit != null"),
                 "select ",
-                baseFields ? e("include", a("refid", "Base_Column_List")) : null,
+                baseFields ? e("include", a("refid", hasAlias ? "Base_Column_Label_List" : "Base_Column_List")) : null,
                 baseFields && blobFields ? "," : null,
-                blobFields ? e("include", a("refid", "Blob_Column_List")) : null,
+                blobFields ? e("include", a("refid", hasAlias ? "Blob_Column_Label_List" : "Blob_Column_List")) : null,
                 optimize ?
                     e("choose",
                         e("when", a("test", "offset != null"), m.replaceAll("from (select _T1_.*, rownum as _ROW_ from (")),
@@ -230,10 +273,17 @@ public class PaginationPlugin extends PluginAdapter {
 
     private class MSSQL2005 extends DBDialect {
         @Override
+        public boolean appendNewElementsToXml(XmlElement root, IntrospectedTable introspectedTable) {
+            copyColumnsList(root, introspectedTable);
+            return true;
+        }
+
+        @Override
         public boolean modifyXml(XmlElement element, IntrospectedTable introspectedTable, boolean baseFields, boolean blobFields) {
             String alias = introspectedTable.getFullyQualifiedTable().getAlias();
             String table = MBGenerator.tableName(introspectedTable);
-            if (!StringUtility.stringHasValue(alias))
+            boolean hasAlias = StringUtility.stringHasValue(alias);
+            if (!hasAlias)
                 alias = table;
 
             StringMacro m = new StringMacro();
@@ -326,9 +376,9 @@ public class PaginationPlugin extends PluginAdapter {
             element.addElement(
                 e("if", a("test", "orderByClause != null and limit != null"+(optimize ? " and offset != null" : "")),
                     ") select ",
-                    baseFields ? e("include", a("refid", "Base_Column_List")) : null,
+                    baseFields ? e("include", a("refid", hasAlias ? "Base_Column_Label_List" : "Base_Column_List")) : null,
                     baseFields && blobFields ? "," : null,
-                    blobFields ? e("include", a("refid", "Blob_Column_List")) : null,
+                    blobFields ? e("include", a("refid", hasAlias ? "Blob_Column_Label_List" : "Blob_Column_List")) : null,
                     m.replaceAll("from _CTE_ _T_ where "),
                     optimize ?
                         m.replaceAll("_ROW_ > ${offset}") :

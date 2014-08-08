@@ -100,13 +100,8 @@ public class SimpleOrCriteriaPlugin extends PluginAdapter {
         )));
 
         criterion.addMethod(method(
-            PUBLIC, new FullyQualifiedJavaType("java.util.List<Criterion>"), "getSubCriteria", __(
-                "if (sub == null) {",
-                    "java.util.List<Criterion> list = new java.util.ArrayList<Criterion>();",
-                    "list.add(this);",
-                    "return list;",
-                "}",
-                "return sub.getCriteria();"
+            PUBLIC, new FullyQualifiedJavaType("Criteria"), "getSubCriteria", __(
+                "return sub;"
         )));
 
         criterion.addMethod(method(PUBLIC, BOOL, "isComplex", __("return sub != null;")));
@@ -116,16 +111,19 @@ public class SimpleOrCriteriaPlugin extends PluginAdapter {
         traverse(element, new FindElements() {
             @Override
             public boolean process(XmlElement parent, Element self, int position) {
-                XmlElement choose = traverse((XmlElement)self, new CopyXml());
-                traverse(choose, new ReplaceText(new TextReplacer("criterion\\.", "citem\\.")));
+                XmlElement foreach = ancestor(0);
+                XmlElement trim = ancestor(1);
+                if (indexOf(trim, foreach) != indexOf(trim, "foreach")) return false;
+
+                XmlElement choose = traverse(trim, new CopyXml());
+                traverse(choose, new ReplaceText(new TextReplacer("criterion\\.", "citem\\."), new TextReplacer("criterion(?=\\.|$)", "citem")));
+                traverse(choose, new ReplaceText(new TextReplacer("criteria\\.", "criterion\\.sub\\.")));
                 traverse(choose, new ReplaceText(new TextReplacer("^\\s*and(?=\\s|\\(|$)", "or"), null));
 
                 addLater((XmlElement)self, 0,
                     e("when", a("test", "criterion.complex"),
                         "and", e("trim", a("prefix", "("), a("suffix", ")"), a("prefixOverrides", "or"),
-                            e("foreach", a("collection", "criterion.subCriteria"), a("item", "citem"),
-                                choose
-                            )
+                            new DocumentFragment(choose)
                         )
                     )
                 );

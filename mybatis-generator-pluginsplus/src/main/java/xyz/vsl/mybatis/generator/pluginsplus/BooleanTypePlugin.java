@@ -3,9 +3,6 @@ package xyz.vsl.mybatis.generator.pluginsplus;
 import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.DefaultJavaFormatter;
 import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.api.dom.xml.Element;
-import org.mybatis.generator.api.dom.xml.TextElement;
-import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.PropertyRegistry;
 
@@ -16,11 +13,25 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.*;
 import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
 
 /**
- * &lt;property name="boolean-varchar-columns" value="column_a (y/n), column_b"/&gt;
+ * <p>Provides a converter (type handler) from Java Boolean type to VARCHAR and NUMBER(x,0) columns.</p>
+ * <p>&lt;table&gt; properties:<ul>
+ *     <li>boolean-varchar-columns &mdash; comma-separated list of VARCHAR column names (case insensitive) to map to Boolean fields</li>
+ *     <li>boolean-integer-columns &mdash; comma-separated list of NUMBER(x,0) (BIT, SMALLINT, INTEGER, BIGINT,...) column names (case insensitive) to map to Boolean fields</li>
+ * </ul></p>
+ * <p>In case of VARCHAR column converter stores 'Y' for {@code true} and 'N' for {@code false}. Valid input values for {@code true} are 'y', 't', '1', 'yes', 'true' (case-insensitive)</p>
+ * <p>In case of NUMBER column converter stores 1 for {@code true} and 0 for {@code false}</p>
+ * <p></p>
+ * <p>Example:</p>
+ * <pre>
+ * &lt;plugin type="xyz.vsl.mybatis.generator.pluginsplus.BooleanTypePlugin"/&gt;
+ * ..........
+ * &lt;table name="foo"&gt;
+ *     &lt;property name="boolean-integer-columns" value="is_active, is_deleted"&gt;
+ * &lt;/table&gt;
+ * </pre>
  * @author Vladimir Lokhov
  */
 public class BooleanTypePlugin extends PluginAdapter {

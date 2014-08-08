@@ -535,7 +535,7 @@ public class AnyCriteriaPlugin extends PluginAdapter {
     public boolean andIf(XmlElement element, IntrospectedTable introspectedTable) {
         return traverse(element, new ReplaceText(
             new ConTextReplacer(
-                "#\\{([^\\}]+?)\\.value\\}",
+                "#\\{([^\\}]+?)\\.value(?:,[^\\}]+)*\\}",
                 "\\${$1."+BEFORE_VALUE+"}$0\\${$1."+AFTER_VALUE+"}",
                 ancestors("when").and((Predicate<Stack<XmlElement>>) attrMatches("test", "^.*\\.singleValue$"))
             ), null
@@ -556,10 +556,13 @@ public class AnyCriteriaPlugin extends PluginAdapter {
                 String op = Str.group(text, "^(.+?)\\s*[\\#\\$]\\{.+$");
                 if (op == null)
                     return false; // unable to get operator ("and", "or")
+                String field = Str.group(text, "\\.(value(?:,[^\\}]+)?)\\}");
+                if (field == null)
+                    return false;
                 addLater(parent, position,
                     e("when",
                         a("test", item+"."+RIGHT_VALUE),
-                        String.format("%s ${%s.%s}#{%2$s.value}${%2$s.%4$s} ${%2$s.condition}", op, item, BEFORE_VALUE, AFTER_VALUE)
+                        String.format("%s ${%s.%s}#{%2$s.%5$s}${%2$s.%4$s} ${%2$s.condition}", op, item, BEFORE_VALUE, AFTER_VALUE, field)
                     )
                 );
                 return true;
