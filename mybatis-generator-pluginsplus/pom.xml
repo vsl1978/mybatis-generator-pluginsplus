@@ -4,11 +4,11 @@
     <parent>
         <groupId>xyz.vsl.mybatis</groupId>
         <artifactId>mybatis.gererator.pluginsplus.root</artifactId>
-        <version>1.1</version>
+        <version>1.2</version>
     </parent>
     <artifactId>mybatis.gererator.pluginsplus</artifactId>
     <packaging>jar</packaging>
-    <version>1.1</version>
+    <version>1.2</version>
     <name>mybatis-gererator-pluginsplus</name>
     <url>http://maven.apache.org</url>
 

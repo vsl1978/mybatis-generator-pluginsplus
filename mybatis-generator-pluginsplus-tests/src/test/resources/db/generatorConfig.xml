@@ -56,6 +56,16 @@
         </plugin>
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.AddCriteriaActionsPlugin" />
 
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.FieldMetadataPlugin" >
+            <property name="annotation-class" value="javax.validation.constraints.Size"/>
+            <property name="annotation-template" value="@Size(max=#{$.column.length})"/>
+            <property name="field-filter" value="$.field.type is java.lang.String and not in(lower($.column.jdbcTypeName),text,clob)"/>
+        </plugin>
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.FieldMetadataPlugin" >
+            <property name="annotation-class" value="javax.validation.constraints.NotNull"/>
+            <property name="field-filter" value="not $.column.nullable and not $.field.type.primitive"/>
+        </plugin>
+
         <!--
         <plugin type="org.mybatis.generator.plugins.AddComplexCriteriaPlugin" >
             <property name="methodName" value="andIsVisible"/>
