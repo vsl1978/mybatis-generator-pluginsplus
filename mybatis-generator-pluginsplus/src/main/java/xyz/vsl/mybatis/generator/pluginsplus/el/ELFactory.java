@@ -1,137 +1,181 @@
 package xyz.vsl.mybatis.generator.pluginsplus.el;
 
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 
-import java.util.List;
+import java.util.*;
+import org.apache.commons.jexl2.*;
 
 /**
  * @author Vladimir Lokhov
  */
 public class ELFactory {
+    private static JexlEngine engine;
 
     public static Context context() {
-        return new InternalContext();
+        return new JEXL2Context();
     }
 
     public static Evaluator evaluator() {
-        InternalEvaluator e = new InternalEvaluator(new DefaultTokenizer());
-        for (Operator o : DEFAULT_OPERATORS)
-            e.addOperator(o);
-        for (Function f : DEFAULT_FUNCTIONS)
-            e.addFunction(f);
-        return e;
+        return new JEXL2Evaluator(engine);
     }
 
-    private static Function[] DEFAULT_FUNCTIONS = {
-        new Function("lower") { public String apply(Context ctx, List<Token> args) { String s = ctx.resolve(first(args)); return s == null ? null : s.toLowerCase(); } },
-        new Function("upper") { public String apply(Context ctx, List<Token> args) { String s = ctx.resolve(first(args)); return s == null ? null : s.toLowerCase(); } },
-        new Function("in") { public String apply(Context ctx, List<Token> args) {
-            String value = null;
-            int idx = 0;
-            for (Token t : args) {
-                String s = ctx.resolve(t);
-                if (idx == 0)
-                    value = s;
-                else {
-                    if (value == null && s == null) return "true";
-                    if (value != null && value.equals(s)) return "true";
-                }
-                idx++;
-            }
-            return "false";
-        }},
-    };
-    
-    private static Operator[] DEFAULT_OPERATORS = {
-        new Operator(20, "&&", "and") { public String apply(Context ctx, List<Token> args) { return String.valueOf(ctx.asBoolean(first(args)) && ctx.asBoolean(second(args))); } },
-        new Operator(10, "||", "or") { public String apply(Context ctx, List<Token> args) { return String.valueOf(ctx.asBoolean(first(args)) || ctx.asBoolean(second(args))); } },
-        new Operator(1, 40, "!", "not") { public String apply(Context ctx, List<Token> args) { return String.valueOf(!ctx.asBoolean(first(args))); } },
-        new Operator(10, "^", "xor") { public String apply(Context ctx, List<Token> args) { return String.valueOf(ctx.asBoolean(first(args)) ^ ctx.asBoolean(second(args))); } },
-        new Operator(30, "<", "lt") { public String apply(Context ctx, List<Token> args) { return String.valueOf(ctx.compare(first(args), second(args)) < 0); } },
-        new Operator(30, ">", "gt") { public String apply(Context ctx, List<Token> args) { return String.valueOf(ctx.compare(first(args), second(args)) > 0); } },
-        new Operator(30, "<=", "le") { public String apply(Context ctx, List<Token> args) { return String.valueOf(ctx.compare(first(args), second(args)) <= 0); } },
-        new Operator(30, ">=", "ge") { public String apply(Context ctx, List<Token> args) { return String.valueOf(ctx.compare(first(args), second(args)) >= 0); } },
-        new Operator(30, "!=", "ne", "<>") { public String apply(Context ctx, List<Token> args) { return String.valueOf(ctx.compare(first(args), second(args)) != 0); } },
-        new Operator(30, "=", "eq", "==") { public String apply(Context ctx, List<Token> args) { return String.valueOf(ctx.compare(first(args), second(args)) == 0); } },
-        new Operator(30, "~", "like") { public String apply(Context ctx, List<Token> args) {
-            String t = ctx.resolve(first(args));
-            if (t == null) return "false";
-            String s = ctx.resolve(second(args));
-            if (s == null) return "false";
+    public static class Functor {
+        public String lower(String s) {
+            return s == null ? null : s.toLowerCase();
+        }
 
-            StringBuilder sb = new StringBuilder();
-            sb.append('^');
-            for (int i = 0; i < s.length(); i++) {
-                char c = Character.toLowerCase(s.charAt(i));
-                if (c == '_') sb.append('.');
-                else if (c == '%') sb.append(".*");
-                else sb.append(c);
+        public String upper(String s) {
+            return s == null ? null : s.toLowerCase();
+        }
+
+        public Collection<Object> conj(Object ... objects) {
+            Collection<Object> target = null;
+            if (objects != null)
+                for (Object o : objects) {
+                    if (o == null)
+                        continue;
+                    if (o instanceof Collection<?>) {
+                        if (target == null) {
+                            if (o instanceof Set)
+                                target = new LinkedHashSet<Object>();
+                            else
+                                target = new ArrayList<Object>();
+                        }
+                        target.addAll((Collection<?>)o);
+                    }
+                    else {
+                        if (target == null)
+                            target = new ArrayList<Object>();
+                        target.add(o);
+                    }
+                }
+            return target;
+        }
+
+        public List<Object> attr(List<?> list, String path) {
+            List<Object> result = new ArrayList<Object>();
+            if (list != null && !list.isEmpty()) {
+                Expression ex = engine.createExpression(path);
+                for (Object o : list) {
+                    if (o == null) continue;
+                    Object r = ex.evaluate(new ObjectContext(engine, o));
+                    if (r != null)
+                        result.add(r);
+                }
             }
-            sb.append('$');
-            return String.valueOf(t.toLowerCase().matches(s.toLowerCase()));
-        }},
-        new Operator(10, "~~", "similar") { public String apply(Context ctx, List<Token> args) {
-            String t = ctx.resolve(first(args));
-            if (t == null) return "false";
-            String s = ctx.resolve(second(args));
-            if (s == null) return "false";
-            return String.valueOf(t.matches(s));
-        }},
+            return result;
+        }
+
+        public List<Object> attrs(List<?> list, String path) {
+            return attr(list, path);
+        }
+
+        public String quote(List<?> list) {
+            StringBuilder sb = new StringBuilder();
+            if (list != null) for (Object o : list) if (o != null) sb.append('"').append(o).append("\", ");
+            if (sb.length() > 0) sb.setLength(sb.length() - 2);
+            return sb.toString();
+        }
+
+        public boolean in(Object ... objects) {
+            if (objects == null || objects.length < 2 || objects[0] == null)
+                return false;
+            Object lookupFor = objects[0];
+            for (int i = 1; i < objects.length; i++) {
+                Object o = objects[i];
+                if (o == null) continue;
+                if (o instanceof Collection<?>) {
+                    if ( ((Collection<?>)o).contains(lookupFor) ) return true;
+                }
+                else {
+                    if (lookupFor.equals(o)) return true;
+                }
+            }
+            return false;
+        }
+
+        public int count(Object o) {
+            if (o == null) return 0;
+            if (o instanceof Collection<?>) return ((Collection<?>)o).size();
+            if (o instanceof Object[]) return ((Object[])o).length;
+            return 1;
+        }
+
+        public boolean is(Object a, String className) {
+            if (a == null)
+                return false;
+            if (className == null)
+                return false;
+            if (a instanceof IntrospectedColumn) {
+                a = ((IntrospectedColumn)a).getFullyQualifiedJavaType();
+            }
+            if (a instanceof org.mybatis.generator.api.dom.java.Field) {
+                a = ((org.mybatis.generator.api.dom.java.Field)a).getType();
+            }
+            if (a instanceof FullyQualifiedJavaType) {
+                FullyQualifiedJavaType type = (FullyQualifiedJavaType)a;
+                return type.getFullyQualifiedName().equals(className) || type.getShortName().equals(className);
+            }
+            if (a instanceof String) {
+                String type = (String)a;
+                return type.equals(className);
+            }
+/*
         new Operator(30, "instanceof", "instanceof?") {
-            public String apply(Context ctx, List<Token> args) {
+            public Token apply(Context ctx, List<Token> args) {
                 Object o = ctx.resolveObject(first(args));
                 String className = ctx.resolve(second(args));
-                if (o == null) {
-                    return "false";
-                }
-                if (className == null) {
-                    return "false";
-                }
                 try {
                     Class<?> klazz = Class.forName(className);
-                    return String.valueOf(klazz.isAssignableFrom(o.getClass()));
+                    return value(klazz.isAssignableFrom(o.getClass()));
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-                return "false";
+                return value(false);
             }
         },
         new Operator(30, "is") {
-            public String apply(Context ctx, List<Token> args) {
+            public Token apply(Context ctx, List<Token> args) {
                 Object o = ctx.resolveObject(first(args));
                 String className = ctx.resolve(second(args));
-                if (o == null) {
-                    return "false";
-                }
-                if (className == null) {
-                    return "false";
-                }
-                if (o instanceof FullyQualifiedJavaType) {
-                    FullyQualifiedJavaType type = (FullyQualifiedJavaType)o;
-                    return String.valueOf(type.getFullyQualifiedName().equals(className) || type.getShortName().equals(className));
-                }
                 else if (o instanceof String) {
                     String type = (String)o;
-                    return String.valueOf(type.equals(className));
+                    return value(type.equals(className));
                 }
-                return "false";
+                return value(false);
             }
         },
-        new Operator(30, "+") {
-            public String apply(Context ctx, List<Token> args) {
-                String s1 = ctx.resolve(first(args));
-                String s2 = ctx.resolve(second(args));
-                if (s1 != null && s2 != null) {
-                    Long n1 = ctx.asNumber(s1);
-                    Long n2 = ctx.asNumber(s2);
-                    if (n1 != null && n2 != null)
-                        return String.valueOf(n1.longValue() + n2.longValue());
+
+ */
+            return false;
+        }
+
+    }
+
+    private static class U extends org.apache.commons.jexl2.introspection.UberspectImpl {
+        public U(org.apache.commons.logging.Log logger) {
+            super(logger);
+        }
+        public java.lang.reflect.Field getField(Object obj, String name, JexlInfo info) {
+            Class<?> klazz = obj instanceof Class<?> ? (Class<?>) obj : obj.getClass();
+            while (klazz != null && klazz != Object.class && !klazz.isPrimitive()) {
+                try {
+                    java.lang.reflect.Field f = klazz.getDeclaredField(name);
+                    f.setAccessible(true);
+                    return f;
+                } catch (Exception e) {
                 }
-                StringBuilder sb = new StringBuilder();
-                if (s1 != null) sb.append(s1);
-                if (s2 != null) sb.append(s2);
-                return sb.length() > 0 ? sb.toString() : null;
+                klazz = klazz.getSuperclass();
             }
-        },
-    };
+            return null;//super.getField(obj, name, info);
+        }
+    }
+
+    static {
+        engine = new JexlEngine(new U(org.apache.commons.logging.LogFactory.getLog(JexlEngine.class)), null, null, null);
+        Map<String, Object> funcs = new HashMap<String, Object>();
+        funcs.put(null, new Functor());
+        engine.setFunctions(funcs);
+    }
 }

@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.regex.Pattern;
 
 /**
  * @author Vladimir Lokhov
@@ -111,6 +112,23 @@ abstract class IntrospectorPlugin extends PluginAdapter {
             e.printStackTrace();
             return null;
         }
+    }
+
+    String getProperty(String ... names) {
+        for (String name : names) {
+            String value = Str.trim(properties.getProperty(name));
+            if (value != null)
+                return value;
+        }
+        return null;
+    }
+
+    String getPropertyByRegexp(String name) {
+        Pattern p = Pattern.compile(name);
+        for (String key : properties.stringPropertyNames())
+            if (p.matcher(key).matches())
+                return properties.getProperty(key);
+        return null;
     }
 
     private static Field xmlDocument;

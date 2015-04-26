@@ -21,7 +21,7 @@
 
 <generatorConfiguration>
 
-    <context id="tables" targetRuntime="MyBatis3" defaultModelType="flat"> <!-- hierarchical, conditional -->
+    <context id="tables" targetRuntime="MyBatis3" defaultModelType="flat"> <!-- flat, hierarchical, conditional -->
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.CommonTablePropertiesPlugin">
             <property name="ignoreQualifiersAtRuntime" value="true"/>
         </plugin>
@@ -51,20 +51,49 @@
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.PaginationPlugin" >
             <property name="dialect" value="hsql"/>
         </plugin>
+
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.FieldMetadataPlugin" >
+            <property name="annotation-class" value="javax.validation.constraints.Size"/>
+            <property name="field-annotation-template" value="@Size(max=#{column.length})"/>
+            <property name="setter-annotation-template" value="@Size(max=#{column.length})"/>
+            <property name="setter-parameter-annotation-template" value="@Size(max=#{column.length})"/>
+            <!--
+            <property name="getter-annotation-template" value="@Size(max=#{column.length})"/>
+            -->
+            <property name="field-filter" value="is(field,'java.lang.String') and not in(lower(column.jdbcTypeName),'text','clob')"/>
+        </plugin>
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.FieldMetadataPlugin" >
+            <property name="annotation-class" value="javax.validation.constraints.NotNull"/>
+            <property name="field-filter" value="not column.nullable and not field.type.primitive"/>
+        </plugin>
+
+        <!--
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.FieldMetadataPlugin" >
+            <property name="annotation-class" value="javax.persistance.Id"/>
+            <property name="field-filter" value="
+                in(field.name, attr(table.primaryKeyColumns, 'javaProperty' )  ) 
+                and 
+                count(table.primaryKeyColumns) == 1
+            "/>
+        </plugin>
+        -->
+
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.LombokSupportPlugin">
+            <property name="toString-annotation-template" value="@ToString(exclude={#{quote(attr(table.blobColumns,'javaProperty'))}})"/>
+            <property name="equals-and-hashcode-filter" value="count(table.primaryKeyColumns) gt 0"/>
+            <property name="equals-and-hashcode-template" value="@EqualsAndHashCode(of={#{quote(attrs(table.primaryKeyColumns,'javaProperty'))}})"/>
+            <property name="use-lombok-builder" value="true"/>
+        </plugin>
+
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.SuperclassPlugin">
+            <property name="model-class-extends" value="xyz.vsl.mybatis.generator.pluginsplus.Entity&lt;*&gt;"/>
+            <property name="model-class-implements" value="java.io.Serializable;xyz.vsl.mybatis.generator.pluginsplus.JsonSerializable&lt;*&gt;"/>
+        </plugin>
+
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.ModelSettersChainPlugin">
             <property name="prefix" value=""/>
         </plugin>
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.AddCriteriaActionsPlugin" />
-
-        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.FieldMetadataPlugin" >
-            <property name="annotation-class" value="javax.validation.constraints.Size"/>
-            <property name="annotation-template" value="@Size(max=#{$.column.length})"/>
-            <property name="field-filter" value="$.field.type is java.lang.String and not in(lower($.column.jdbcTypeName),text,clob)"/>
-        </plugin>
-        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.FieldMetadataPlugin" >
-            <property name="annotation-class" value="javax.validation.constraints.NotNull"/>
-            <property name="field-filter" value="not $.column.nullable and not $.field.type.primitive"/>
-        </plugin>
 
         <!--
         <plugin type="org.mybatis.generator.plugins.AddComplexCriteriaPlugin" >

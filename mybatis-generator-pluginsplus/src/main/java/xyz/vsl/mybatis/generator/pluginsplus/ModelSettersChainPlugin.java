@@ -57,6 +57,7 @@ public class ModelSettersChainPlugin extends PluginAdapter {
     public boolean modelSetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
         if (generateNewSetters) {
             Method alt = method(method.getVisibility(), topLevelClass.getType(), gen.name(introspectedColumn.getJavaProperty()), __(method));
+            alt.getAnnotations().addAll(method.getAnnotations());
             if (method.getBodyLines() != null)
                 for (String line : method.getBodyLines())
                     alt.addBodyLine(line);

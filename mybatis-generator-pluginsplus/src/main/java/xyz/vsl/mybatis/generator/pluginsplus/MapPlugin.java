@@ -31,7 +31,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  * </ul>
  * @author Vladimir Lokhov
  */
-public class MapPlugin extends PluginAdapter {
+public class MapPlugin extends IntrospectorPlugin {
     private final static String SKIP                            = "-";
     private final static String DEFAULT_MAPPED_VARCHAR_COLUMNS  = "(?i)(.*[^A-Za-z]|^)(uid|name|src|code)([^A-Za-z].*|$)";
     private final static String TABLE_SPECIFIC_PREFIX           = "table:";
@@ -40,21 +40,23 @@ public class MapPlugin extends PluginAdapter {
     private List<Pair<Pattern, Pattern>> tableSpecific = new ArrayList<Pair<Pattern, Pattern>>();
     private String mapPrefix;
     private String mapAllPrefix;
+    private JavaVersion targetJavaVersion;
 
     @Override
     public boolean validate(List<String> warnings) {
-        mappedVarcharColumns = Pattern.compile(Objects.nvl(Str.trim(properties.getProperty("mappedVarcharColumns")), DEFAULT_MAPPED_VARCHAR_COLUMNS));
+        mappedVarcharColumns = Pattern.compile(Objects.nvl(Str.trim(getPropertyByRegexp("(?i)mapped-?varchar-?columns")), DEFAULT_MAPPED_VARCHAR_COLUMNS));
         for (Enumeration<Object> keys = properties.keys(); keys.hasMoreElements(); ) {
             String key = (String)keys.nextElement();
             if (key.startsWith(TABLE_SPECIFIC_PREFIX))
                 tableSpecific.add(Pair.of(Pattern.compile(key.substring(TABLE_SPECIFIC_PREFIX.length())), Pattern.compile(properties.getProperty(key))));
         }
-        mapPrefix = Objects.nvl(Str.trim(properties.getProperty("mapMethodPrefix")), "mapBy");
-        mapAllPrefix = Objects.nvl(Str.trim(properties.getProperty("mapAllMethodPrefix")), "mapAllBy");
+        mapPrefix = Objects.nvl(Str.trim(getPropertyByRegexp("(?i)map-?method-?prefix")), "mapBy");
+        mapAllPrefix = Objects.nvl(Str.trim(getPropertyByRegexp("(?i)map-?all-?method-?prefix")), "mapAllBy");
         if (!SKIP.equals(mapPrefix) && mapPrefix.equals(mapAllPrefix)) {
             warnings.add(Messages.load(this).get("failOnEqualMethodNames", mapPrefix));
             return false;
         }
+        targetJavaVersion = Objects.nvl(JavaVersion.parse(getPropertyByRegexp("(?i)target(-?java(-?version)?)?|java(-?version)?")), JavaVersion.java5);
         return true;
     }
 
@@ -133,32 +135,48 @@ public class MapPlugin extends PluginAdapter {
 
             if (!SKIP.equals(mapPrefix)) {
                 FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("java.util.Map<" + targetType + ", " + selfType + ">");
-                topLevelClass.addMethod(method(
-                    PUBLIC, STATIC, returnType, mapPrefix + uProperty, _(collection, "beans"), __(
-                        _("Map<%s, %s> map = new LinkedHashMap<%1$s,%2$s>();", tt, shortName),
-                        "if (beans == null || beans.isEmpty()) return map;",
-                        _("for (%s bean : beans) {", shortName),
-                        _("map.put(bean.%s(), bean);", getterMethod),
-                        "}",
-                        "return map;"
-                )));
+                if (JavaVersion.java8.isSubsetOf(targetJavaVersion)) {
+                    topLevelClass.addMethod(method(
+                        PUBLIC, STATIC, returnType, mapPrefix + uProperty, _(collection, "beans"), __(
+                            _("if (beans == null || beans.isEmpty()) return new LinkedHashMap<%s,%s>();", tt, shortName),
+                            _("return beans.stream().collect(Collectors.toMap(%s::%s, t->t, (s,a)->s));", shortName, getterMethod)
+                    )));
+                } else {
+                    topLevelClass.addMethod(method(
+                        PUBLIC, STATIC, returnType, mapPrefix + uProperty, _(collection, "beans"), __(
+                            _("Map<%s, %s> map = new LinkedHashMap<%1$s,%2$s>();", tt, shortName),
+                            "if (beans == null || beans.isEmpty()) return map;",
+                            _("for (%s bean : beans) {", shortName),
+                            _("map.put(bean.%s(), bean);", getterMethod),
+                            "}",
+                            "return map;"
+                    )));
+                }
                 generated = true;
             }
 
             if (!SKIP.equals(mapAllPrefix)) {
                 FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("java.util.Map<" + targetType + ", java.util.List<" + selfType + ">>");
-                topLevelClass.addMethod(method(
-                    PUBLIC, STATIC, returnType, mapAllPrefix + uProperty, _(collection, "beans"), __(
-                        _("Map<%s, List<%s>> map = new LinkedHashMap<%1$s, List<%2$s>>();", tt, shortName),
-                        "if (beans == null || beans.isEmpty()) return map;",
-                        _("for (%s bean : beans) {", shortName),
+                if (JavaVersion.java8.isSubsetOf(targetJavaVersion)) {
+                    topLevelClass.addMethod(method(
+                        PUBLIC, STATIC, returnType, mapAllPrefix + uProperty, _(collection, "beans"), __(
+                            _("if (beans == null || beans.isEmpty()) return new LinkedHashMap<%s, List<%s>>();", tt, shortName),
+                            _("return beans.stream().collect(Collectors.groupingBy(%s::%s));", shortName, getterMethod)
+                    )));
+                } else {
+                    topLevelClass.addMethod(method(
+                        PUBLIC, STATIC, returnType, mapAllPrefix + uProperty, _(collection, "beans"), __(
+                            _("Map<%s, List<%s>> map = new LinkedHashMap<%1$s, List<%2$s>>();", tt, shortName),
+                            "if (beans == null || beans.isEmpty()) return map;",
+                            _("for (%s bean : beans) {", shortName),
                             _("%s v = bean.%s();", tt, getterMethod),
                             _("List<%s> list = map.get(v);", shortName),
                             _("if (list == null) map.put(v, list = new ArrayList<%s>());", shortName),
                             "list.add(bean);",
-                        "}",
-                        "return map;"
-                )));
+                            "}",
+                            "return map;"
+                    )));
+                }
                 generated = true;
             }
         }
@@ -169,6 +187,9 @@ public class MapPlugin extends PluginAdapter {
             topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.ArrayList"));
             topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.Map"));
             topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.LinkedHashMap"));
+            if (JavaVersion.java8.isSubsetOf(targetJavaVersion)) {
+                topLevelClass.addImportedType(new FullyQualifiedJavaType("java.util.stream.Collectors"));
+            }
         }
 
     }

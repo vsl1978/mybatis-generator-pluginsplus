@@ -2,15 +2,9 @@ package xyz.vsl.mybatis.generator.pluginsplus;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.Plugin;
-import org.mybatis.generator.api.dom.java.Field;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
-import xyz.vsl.mybatis.generator.pluginsplus.el.Context;
-import xyz.vsl.mybatis.generator.pluginsplus.el.ELFactory;
-import xyz.vsl.mybatis.generator.pluginsplus.el.Evaluator;
-import xyz.vsl.mybatis.generator.pluginsplus.el.Tokenizer;
+import org.mybatis.generator.api.dom.java.*;
+import xyz.vsl.mybatis.generator.pluginsplus.el.*;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -20,95 +14,79 @@ import java.util.ListIterator;
 public class FieldMetadataPlugin extends IntrospectorPlugin {
     private String annotationClass;
     private String annotationClassSimpleName;
-    private String template;
-    private String filter;
     private Evaluator filterExpressionEvaluator;
-    private Evaluator templateEvaluator;
+    private Evaluator fieldTemplateEvaluator;
+    private Evaluator setterTemplateEvaluator;
+    private Evaluator setterParameterTemplateEvaluator;
+    private Evaluator getterTemplateEvaluator;
 
     @Override
     public boolean validate(List<String> warnings) {
-        this.annotationClass = Str.trim(properties.getProperty("annotationClass", properties.getProperty("annotation-class")));
+        this.annotationClass = getProperty("annotationClass", "annotation-class", "annotation");
         if (this.annotationClass == null) {
-            warnings.add(Messages.load(this).get("requiredProperty", "annotationClass"));
+            warnings.add(Messages.load(this).get("requiredProperty", "annotation-class"));
             return false;
         }
-        this.template = Str.trim(properties.getProperty("annotationTemplate", properties.getProperty("annotation-template")));
         int lastdot = this.annotationClass.lastIndexOf('.');
         int last$ = this.annotationClass.lastIndexOf('$');
         this.annotationClassSimpleName = this.annotationClass.substring(Math.max(lastdot, last$) + 1);
-        if (this.template == null) {
-            this.template = "@"+annotationClassSimpleName;
-        }
-        this.filter = Str.trim(properties.getProperty("fieldFilter", properties.getProperty("field-filter", properties.getProperty("filter"))));
-        if (this.filter == null)
-            this.filter = "true";
-        filterExpressionEvaluator = ELFactory.evaluator().compile(this.filter);
-        this.templateEvaluator = ELFactory.evaluator();
-        String templateExpression = convertTemplateToExpression(this.template, this.templateEvaluator.getTokenizer());
-        templateEvaluator = templateEvaluator.compile(templateExpression);
-        return true;
-    }
 
-    private String convertTemplateToExpression(String template, Tokenizer tokenizer) {
-        StringBuilder sb = new StringBuilder();
-        int start = 0;
-        int pos;
-        while (start < template.length() && (pos = template.indexOf("#{", start)) >= 0) {
-            int last = pos;
-            int toClose = 0;
-            for (; last < template.length(); last++)
-                if (template.charAt(last) == '{')
-                    toClose++;
-                else if (template.charAt(last) == '}') {
-                    toClose--;
-                    if (toClose == 0) break;
-                }
-            if (pos > start) {
-                if (sb.length() > 0)
-                    sb.append(" + ");
-                sb.append('(').append(tokenizer.escape(template.substring(start, pos))).append(')');
-            }
-            pos += "#{".length();
-            if (pos < last) {
-                if (sb.length() > 0)
-                    sb.append(" + ");
-                sb.append('(').append(template.substring(pos, last)).append(')');
-            }
-            start = last + 1;
-        }
-        if (start == 0)
-            return tokenizer.escape(template);
-        if (start < template.length()) {
-            sb.append(" + ");
-            sb.append('(').append(tokenizer.escape(template.substring(start))).append(')');
-        }
-        return sb.toString();
+        filterExpressionEvaluator = ELFactory.evaluator().compile(Objects.nvl(getProperty("fieldFilter", "field-filter", "filter"), "false"));
+
+        setterTemplateEvaluator = template(getProperty("setter-annotation-template", "setterAnnotationTemplate", "setter-annotation", "setterAnnotation"));
+        setterParameterTemplateEvaluator = template(getProperty("setter-parameter-annotation-template", "setterParameterAnnotationTemplate", "setter-param-annotation-template", "setterParamAnnotationTemplate", "parameter-annotation-template", "parameterAnnotationTemplate", "parameter-annotation", "parameterAnnotation"));
+        getterTemplateEvaluator = template(getProperty("getter-annotation-template", "getterAnnotationTemplate", "getter-annotation", "getterAnnotation"));
+        boolean hasMethodTemplates = Objects.nvl(setterTemplateEvaluator, setterParameterTemplateEvaluator, getterTemplateEvaluator) != null;
+        String defaultTemplate = hasMethodTemplates ? null : ("@" + annotationClassSimpleName);
+        fieldTemplateEvaluator = template(Objects.nvl(getProperty("field-annotation-template", "annotationTemplate", "annotation-template", "field-annotation", "fieldAnnotation"), defaultTemplate));
+
+        return true;
     }
 
     @Override
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
+        if (fieldTemplateEvaluator == null)
+            return true;
         Context ctx = buildContext(field, topLevelClass, introspectedColumn, introspectedTable, modelClassType);
         String matches = filterExpressionEvaluator.evaluate(ctx);
+        if (Bool.bool(matches, false))
+            addAnnotation(ctx, fieldTemplateEvaluator, field, topLevelClass);
+        return true;
+    }
+
+    @Override
+    public boolean modelSetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
+        if (setterTemplateEvaluator == null && setterParameterTemplateEvaluator == null)
+            return true;
+        Field field = getField(topLevelClass, introspectedColumn.getJavaProperty());
+        Context ctx = buildContext(field, topLevelClass, introspectedColumn, introspectedTable, modelClassType).set("method", method);
+        String matches = filterExpressionEvaluator.evaluate(ctx);
         if (Bool.bool(matches, false)) {
-            String value = templateEvaluator.evaluate(ctx);
-            List<String> annotations = field.getAnnotations();
-            boolean replaced = false;
-            if (annotations != null)
-                for (ListIterator<String> it = annotations.listIterator(); it.hasNext(); ) {
-                    String a = Str.trim(it.next());
-                    if (a == null) continue;
-                    if (a.startsWith(annotationClass, 1) || a.startsWith(annotationClassSimpleName, 1)) {
-                        it.set(value);
-                        replaced = true;
-                        break;
-                    }
-                }
-            if (!replaced) {
-                field.addAnnotation(value);
-                topLevelClass.addImportedType(annotationClass);
-            }
+            addAnnotation(ctx, setterTemplateEvaluator, method, topLevelClass);
+            addAnnotation(ctx, setterParameterTemplateEvaluator, method.getParameters().get(0), topLevelClass);
         }
         return true;
+    }
+
+    @Override
+    public boolean modelGetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
+        if (getterTemplateEvaluator == null)
+            return true;
+        Field field = getField(topLevelClass, introspectedColumn.getJavaProperty());
+        Context ctx = buildContext(field, topLevelClass, introspectedColumn, introspectedTable, modelClassType).set("method", method);
+        String matches = filterExpressionEvaluator.evaluate(ctx);
+        if (Bool.bool(matches, false))
+            addAnnotation(ctx, getterTemplateEvaluator, method, topLevelClass);
+        return true;
+    }
+
+    private Evaluator template(String template) {
+        if (template == null)
+            return null;
+        Evaluator e = ELFactory.evaluator();
+        String templateExpression = ELUtils.convertTemplateToExpression(template, e.getTokenizer());
+        e = e.compile(templateExpression);
+        return e;
     }
 
     private Context buildContext(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
@@ -117,6 +95,48 @@ public class FieldMetadataPlugin extends IntrospectorPlugin {
         ctx.set("column", introspectedColumn);
         ctx.set("table", introspectedTable);
         return ctx;
+    }
+
+    private void addAnnotation(Context ctx, Evaluator template, JavaElement target, TopLevelClass topLevelClass) {
+        if (template == null)
+            return;
+        String value = template.evaluate(ctx);
+        if (!replaceExistingAnnotation(target.getAnnotations(), value)) {
+            target.addAnnotation(value);
+            topLevelClass.addImportedType(annotationClass);
+        }
+    }
+
+    private void addAnnotation(Context ctx, Evaluator template, Parameter target, TopLevelClass topLevelClass) {
+        if (template == null)
+            return;
+        String value = template.evaluate(ctx);
+        if (!replaceExistingAnnotation(target.getAnnotations(), value)) {
+            target.addAnnotation(value);
+            topLevelClass.addImportedType(annotationClass);
+        }
+    }
+
+    private boolean replaceExistingAnnotation(List<String> annotations, String newValue) {
+        int index = Objects.findAnnotaion(annotations, annotationClass, annotationClassSimpleName);
+        if (index < 0)
+            return false;
+        annotations.set(index, newValue);
+        return true;
+    }
+
+    private Field getField(TopLevelClass topLevelClass, String javaPropertyName) {
+        if (javaPropertyName == null)
+            return null;
+        List<Field> fields = topLevelClass.getFields();
+        if (fields == null)
+            return null;
+        for (Field f : fields) {
+            if (javaPropertyName.equals(f.getName()))
+                return f;
+        }
+        //System.err.println("--------------------------- Unable to find field '" + javaPropertyName + "' in " + topLevelClass.getType().getFullyQualifiedName());
+        return null;
     }
 
 

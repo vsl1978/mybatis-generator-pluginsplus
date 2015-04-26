@@ -1,6 +1,7 @@
 package xyz.vsl.mybatis.generator.pluginsplus;
 
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.Method;
@@ -8,6 +9,7 @@ import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Element;
 import org.mybatis.generator.api.dom.xml.TextElement;
 import org.mybatis.generator.api.dom.xml.XmlElement;
+import org.mybatis.generator.internal.rules.Rules;
 
 import java.util.ListIterator;
 import java.util.Map;
@@ -550,6 +552,28 @@ final class MBGenerator {
                 if (s != null) sb.append(s);
             }
         return sb.toString();
+    }
+
+    public static boolean isTopmostModelClass(Plugin.ModelClassType type, IntrospectedTable table) {
+        Rules rules = table.getRules();
+        if (type == Plugin.ModelClassType.PRIMARY_KEY)
+            return rules.generatePrimaryKeyClass();
+        if (type == Plugin.ModelClassType.BASE_RECORD)
+            return !rules.generatePrimaryKeyClass() && rules.generateBaseRecordClass();
+        if (type == Plugin.ModelClassType.RECORD_WITH_BLOBS)
+            return !rules.generatePrimaryKeyClass() && !rules.generateBaseRecordClass() && rules.generateRecordWithBLOBsClass();
+        return false;
+    }
+
+    public static boolean isUndermostModelClass(Plugin.ModelClassType type, IntrospectedTable table) {
+        Rules rules = table.getRules();
+        if (type == Plugin.ModelClassType.PRIMARY_KEY)
+            return rules.generatePrimaryKeyClass() && !rules.generateBaseRecordClass() && !rules.generateRecordWithBLOBsClass();
+        if (type == Plugin.ModelClassType.BASE_RECORD)
+            return rules.generateBaseRecordClass() && !rules.generateRecordWithBLOBsClass();
+        if (type == Plugin.ModelClassType.RECORD_WITH_BLOBS)
+            return rules.generateRecordWithBLOBsClass();
+        return false;
     }
 
     static {
