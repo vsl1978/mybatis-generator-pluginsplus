@@ -32,6 +32,18 @@ class JEXL2Evaluator implements Evaluator {
     }
 
     @Override
+    public boolean evaluateBoolean(Context context) {
+        Object o = evaluateObject(context);
+        if (o == null)
+            return false;
+        if (o instanceof Boolean)
+            return ((Boolean)o).booleanValue();
+        if (o instanceof String)
+            return ((String)o).trim().toLowerCase().equals("true");
+        return false;
+    }
+
+    @Override
     public Object evaluateObject(Context context) {
         return expression.evaluate(((JEXL2Context)context).getDelegatedContext());
     }

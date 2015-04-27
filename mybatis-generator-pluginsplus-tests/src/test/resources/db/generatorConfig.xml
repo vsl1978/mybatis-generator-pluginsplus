@@ -21,7 +21,7 @@
 
 <generatorConfiguration>
 
-    <context id="tables" targetRuntime="MyBatis3" defaultModelType="flat"> <!-- flat, hierarchical, conditional -->
+    <context id="tables" targetRuntime="MyBatis3" defaultModelType="conditional"> <!-- flat, hierarchical, conditional -->
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.CommonTablePropertiesPlugin">
             <property name="ignoreQualifiersAtRuntime" value="true"/>
         </plugin>
@@ -88,6 +88,17 @@
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.SuperclassPlugin">
             <property name="model-class-extends" value="xyz.vsl.mybatis.generator.pluginsplus.Entity&lt;*&gt;"/>
             <property name="model-class-implements" value="java.io.Serializable;xyz.vsl.mybatis.generator.pluginsplus.JsonSerializable&lt;*&gt;"/>
+            <property name="mapper-class-extends" value="xyz.vsl.mybatis.generator.pluginsplus.ReadOnlyMapper&lt;*example,*base&gt;"/>
+        </plugin>
+
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.SuperclassPlugin">
+            <property name="mapper-class-extends" value="xyz.vsl.mybatis.generator.pluginsplus.PrimaryKeyMapper&lt;*java.pk.class,*base&gt;"/>
+            <property name="mapper-class-extends-if" value="pk.size() == 1 and not pk[0].primitive"/>
+        </plugin>
+
+        <plugin type="xyz.vsl.mybatis.generator.pluginsplus.SuperclassPlugin">
+            <property name="mapper-class-extends" value="xyz.vsl.mybatis.generator.pluginsplus.ReadOnlyBLOBMapper&lt;*example,*model&gt;"/>
+            <property name="mapper-class-extends-if" value="table.hasBLOBColumns()"/>
         </plugin>
 
         <plugin type="xyz.vsl.mybatis.generator.pluginsplus.ModelSettersChainPlugin">
@@ -143,6 +154,8 @@
             <property name="boolean-integer-columns" value="successful, is_deleted"/>
             <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
+
+        <table tableName="system_logo"/>
 
     </context>
 </generatorConfiguration>

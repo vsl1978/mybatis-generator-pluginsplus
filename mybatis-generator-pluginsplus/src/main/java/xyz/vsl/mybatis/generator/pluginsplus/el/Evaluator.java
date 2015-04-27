@@ -11,6 +11,8 @@ public interface Evaluator {
 
     public String evaluate(Context context);
 
+    public boolean evaluateBoolean(Context context);
+
     public Object evaluateObject(Context context);
 
 }

@@ -135,7 +135,7 @@ public class FieldMetadataPlugin extends IntrospectorPlugin {
             if (javaPropertyName.equals(f.getName()))
                 return f;
         }
-        //System.err.println("--------------------------- Unable to find field '" + javaPropertyName + "' in " + topLevelClass.getType().getFullyQualifiedName());
+        //System.err.println("--------------------------- Unable to find field '" + javaPropertyName + "' in " + topLevelClass.genType().getFullyQualifiedName());
         return null;
     }
 
