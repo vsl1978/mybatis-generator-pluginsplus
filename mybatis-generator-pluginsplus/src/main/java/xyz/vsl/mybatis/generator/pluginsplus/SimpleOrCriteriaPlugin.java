@@ -117,7 +117,7 @@ public class SimpleOrCriteriaPlugin extends PluginAdapter {
 
                 XmlElement choose = traverse(trim, new CopyXml());
                 traverse(choose, new ReplaceText(new TextReplacer("criterion\\.", "citem\\."), new TextReplacer("criterion(?=\\.|$)", "citem")));
-                traverse(choose, new ReplaceText(new TextReplacer("criteria\\.", "criterion\\.sub\\.")));
+                traverse(choose, new ReplaceText(new TextReplacer("criteria\\.", "criterion\\.subCriteria\\.")));
                 traverse(choose, new ReplaceText(new TextReplacer("^\\s*and(?=\\s|\\(|$)", "or"), null));
 
                 addLater((XmlElement)self, 0,
