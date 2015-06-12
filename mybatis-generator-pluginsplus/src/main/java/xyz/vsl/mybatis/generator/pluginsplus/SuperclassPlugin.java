@@ -36,15 +36,18 @@ public class SuperclassPlugin extends IntrospectorPlugin {
     @Override
     public boolean validate(List<String> list) {
         modelClassExtends = ClassNameTemplate.parse(getPropertyByRegexp("(?i)model(-?class)?-?extends?"));
-        modelClassExtendsFilter = evaluator("(?i)model(-?class)?-?extends?-?(if|when|filter)", modelClassExtends != null);
         exampleClassExtends = ClassNameTemplate.parse(getPropertyByRegexp("(?i)(example|criteria)(-?class)?-?extends?"));
-        exampleClassExtendsFilter = evaluator("(?i)(example|criteria)(-?class)?-?extends?-?(if|when|filter)", exampleClassExtends != null);
         modelClassImplements = ClassNameTemplate.parse(getPropertyByRegexp("(?i)model(-?class)?-?implements?"), ";");
-        modelClassImplementsFilter = Objects.nvl(evaluator("(?i)model(-?class)?-?implements?-?(if|when|filter)", false), modelClassExtendsFilter);
         exampleClassImplements = ClassNameTemplate.parse(getPropertyByRegexp("(?i)(example|criteria)(-?class)?-?implements?"), ";");
-        exampleClassImplementsFilter = Objects.nvl(evaluator("(?i)(example|criteria)(-?class)?-?implements?-?(if|when|filter)", false), exampleClassExtendsFilter);
         mapperInterfaceExtends = ClassNameTemplate.parse(getPropertyByRegexp("(?i)mapper(-?class|-?interface)?(-?implements?|-?extends?)"), ";");
+        
+        modelClassExtendsFilter = evaluator("(?i)model(-?class)?-?extends?-?(if|when|filter)", modelClassExtends != null || !modelClassImplements.isEmpty());
+        exampleClassExtendsFilter = evaluator("(?i)(example|criteria)(-?class)?-?extends?-?(if|when|filter)", exampleClassExtends != null || !exampleClassImplements.isEmpty());
+        modelClassImplementsFilter = Objects.nvl(evaluator("(?i)model(-?class)?-?implements?-?(if|when|filter)", false), modelClassExtendsFilter);
+        exampleClassImplementsFilter = Objects.nvl(evaluator("(?i)(example|criteria)(-?class)?-?implements?-?(if|when|filter)", false), exampleClassExtendsFilter);
+        
         mapperInterfaceExtendsFilter = evaluator("(?i)mapper(-?class|-?interface)?(-?implements?|-?extends?)-?(if|when|filter)", !mapperInterfaceExtends.isEmpty());
+
         return true;
     }
 
