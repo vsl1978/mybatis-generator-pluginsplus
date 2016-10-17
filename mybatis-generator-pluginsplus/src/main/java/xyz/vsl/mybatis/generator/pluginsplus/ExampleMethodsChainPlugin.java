@@ -54,7 +54,7 @@ public class ExampleMethodsChainPlugin extends PluginAdapter {
             return true;
 
         topLevelClass.addMethod(method(
-            PUBLIC, new FullyQualifiedJavaType("Criteria"), topLevelMethodName, __(
+            PUBLIC, new FullyQualifiedJavaType("Criteria"), topLevelMethodName, body(
                 "if (oredCriteria == null || oredCriteria.isEmpty()) return createCriteria();",
                 "return oredCriteria.get(oredCriteria.size() - 1);"
         )));
@@ -79,8 +79,8 @@ public class ExampleMethodsChainPlugin extends PluginAdapter {
         if (injected) {
             if (criteria != null) {
                 criteria.addField(field(PRIVATE, topLevelClass.getType(), OWNER));
-                criteria.addMethod(method(PUBLIC, topLevelClass.getType(), innerMethodName, _("return %s;", OWNER)));
-                criteria.addMethod(method(PRIVATE, VOID, innerMethodName, _(topLevelClass.getType(), "owner"), _("this.%s = owner;", OWNER)));
+                criteria.addMethod(method(PUBLIC, topLevelClass.getType(), innerMethodName, format("return %s;", OWNER)));
+                criteria.addMethod(method(PRIVATE, VOID, innerMethodName, param(topLevelClass.getType(), "owner"), format("this.%s = owner;", OWNER)));
             } else {
                 cciLines.remove(cciLines.size() - 2);
                 injected = false;
@@ -96,7 +96,7 @@ public class ExampleMethodsChainPlugin extends PluginAdapter {
                 }
             } else {
                 topLevelClass.addMethod(method(
-                    PUBLIC, topLevelClass.getType(), setOrderByMethodName, _(STRING, "orderBy"), __(
+                    PUBLIC, topLevelClass.getType(), setOrderByMethodName, param(STRING, "orderBy"), body(
                         "this.orderByClause = orderBy;",
                         "return this;"
                 )));
@@ -112,7 +112,7 @@ public class ExampleMethodsChainPlugin extends PluginAdapter {
                 }
             } else {
                 topLevelClass.addMethod(method(
-                    PUBLIC, topLevelClass.getType(), setDistinctMethodName, _(BOOL, "distinct"), __(
+                    PUBLIC, topLevelClass.getType(), setDistinctMethodName, param(BOOL, "distinct"), body(
                         "this.distinct = distinct;",
                         "return this;"
                 )));

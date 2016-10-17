@@ -18,14 +18,14 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 
 /**
  * <p>Adds custom criterion to specified *Example-class. Custom criterion is a combination of another criteria.</p>
- * <p>Configuration parameters:<dl>
+ * <p>Configuration parameters:</p><dl>
  *     <dt>targetTable</dt>
  *     <dd><b>(Required)</b> A regular expression that specifies table to be processed</dd>
  *     <dt>methodName</dt>
  *     <dd><b>(Required)</b> New method's name</dd>
  *     <dt>methodBody</dt>
  *     <dd>New method's body (without {@code return} statement</dd>
- * </dl></p>
+ * </dl>
  * <p>Example configuration:</p>
  * <pre>
  * &lt;plugin type="xyz.vsl.mybatis.generator.pluginsplus.AddComplexCriteriaPlugin"&gt;

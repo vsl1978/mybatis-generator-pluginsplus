@@ -3,7 +3,6 @@ package xyz.vsl.mybatis.generator.pluginsplus;
 import java.util.List;
 
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Element;
@@ -17,20 +16,20 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
 
 /**
  * <p>Provides the ability to use criteria like {@code "... and (a or b or c) and ..."}</p>
- * <p>Adds two new methods to an Example class:
+ * <p>Adds two new methods to an Example class:</p>
  * <ul>
  *     <li>{@code andOr()} &mdash; starts sub-criterion</li>
  *     <li>{@code endOr()} &mdash; ends sub-criterion</li>
- * </ul></p>
- * <p><b>Dependencies:</b>
+ * </ul>
+ * <p><b>Dependencies:</b></p>
  * <ul>
  *     <li>{@link xyz.vsl.mybatis.generator.pluginsplus.ExampleMethodsChainPlugin ExampleMethodsChainPlugin} &mdash; <b>required</b></li>
- * </ul></p>
- * <p></p>
- * <p>Supported Java Client generators:<br/>
- * <b>ANNOTATEDMAPPER</b>: not supported<br/>
- * <b>MIXEDMAPPER</b>: supported<br/>
- * <b>XMLMAPPER</b>: supported<br/>
+ * </ul>
+ * <p>&nbsp;</p>
+ * <p>Supported Java Client generators:<br>
+ * <b>ANNOTATEDMAPPER</b>: not supported<br>
+ * <b>MIXEDMAPPER</b>: supported<br>
+ * <b>XMLMAPPER</b>: supported<br>
  * </p>
  * @author Vladimir Lokhov
  */
@@ -80,31 +79,31 @@ public class SimpleOrCriteriaPlugin extends PluginAdapter {
         criteria.addField(field(PRIVATE, criteria.getType(), "_parent"));
 
         criteria.addMethod(method(
-            PUBLIC, CRITERIA, "andOr", __(
+            PUBLIC, CRITERIA, "andOr", body(
                 "Criteria c = _owner.createCriteriaInternal();",
                 "c._parent = this;",
                 "criteria.add(new Criterion(c));",
                 "return c;"
         )));
 
-        criteria.addMethod(method(PUBLIC, CRITERIA, "endOr", __("return _parent != null ? _parent : this;")));
+        criteria.addMethod(method(PUBLIC, CRITERIA, "endOr", body("return _parent != null ? _parent : this;")));
     }
 
     private void modifyCriterion(InnerClass criterion, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         criterion.addField(field(PRIVATE, CRITERIA, "sub"));
 
         criterion.addMethod(constructor(
-            PROTECTED, "Criterion", _(CRITERIA, "sub"), __(
+            PROTECTED, "Criterion", param(CRITERIA, "sub"), body(
                 "super();",
                 "this.sub = sub;"
         )));
 
         criterion.addMethod(method(
-            PUBLIC, new FullyQualifiedJavaType("Criteria"), "getSubCriteria", __(
+            PUBLIC, new FullyQualifiedJavaType("Criteria"), "getSubCriteria", body(
                 "return sub;"
         )));
 
-        criterion.addMethod(method(PUBLIC, BOOL, "isComplex", __("return sub != null;")));
+        criterion.addMethod(method(PUBLIC, BOOL, "isComplex", body("return sub != null;")));
     }
 
     public boolean sqlMapExampleWhereClauseElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {

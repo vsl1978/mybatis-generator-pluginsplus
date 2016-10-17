@@ -21,6 +21,7 @@ import static org.mybatis.generator.api.dom.java.JavaVisibility.PUBLIC;
  * <p>Provides the ability to use custom criteria.</p>
  * <p>This plugin adds new methods in Example-class:</p>
  * <table border="1" cellspacing="0" cellpadding="0">
+ *     <caption>List of generated methods</caption>
  *     <thead>
  *         <tr>
  *             <th>Generated method's name</th>
@@ -31,52 +32,52 @@ import static org.mybatis.generator.api.dom.java.JavaVisibility.PUBLIC;
  *         <tr valign="top">
  *             <td>andEqualTo(String field, Object value)</td>
  *             <td>
- *                 <p>Adds criterion<br/>
- *                 {@code field '=' value}<br/>
+ *                 <p>Adds criterion<br>
+ *                 {@code field '=' value}<br>
  *                 where {@code field} is any suitable sql expression and {@code value} is a bind variable
  *                 </p>
- *                 <p>Example:<br/>
- *                 <i>Java-code:</i><br/> <tt>andEqualTo("lower(shipcity)", shipcity.toLowerCase());</tt><br/>
- *                 <i>Result sql:</i><br/> <tt>lower(shipcity) = ?</tt><br/>
+ *                 <p>Example:<br>
+ *                 <i>Java-code:</i><br> <tt>andEqualTo("lower(shipcity)", shipcity.toLowerCase());</tt><br>
+ *                 <i>Result sql:</i><br> <tt>lower(shipcity) = ?</tt><br>
  *                 </p>
  *             </td>
  *         </tr>
  *         <tr valign="top">
  *             <td>andNotEqualTo(String field, Object value)</td>
  *             <td>
- *                 <p>Adds criterion<br/>
- *                 {@code field '&lt;&gt;' value}<br/>
+ *                 <p>Adds criterion<br>
+ *                 {@code field '&lt;&gt;' value}<br>
  *                 where {@code field} is any suitable sql expression and {@code value} is a bind variable
  *                 </p>
- *                 <p>Example:<br/>
- *                 <i>Java-code:</i><br/> <tt>andNotEqualTo("lower(shipcity)", shipcity.toLowerCase());</tt><br/>
- *                 <i>Result sql:</i><br/> <tt>lower(shipcity) &lt;&gt; ?</tt><br/>
+ *                 <p>Example:<br>
+ *                 <i>Java-code:</i><br> <tt>andNotEqualTo("lower(shipcity)", shipcity.toLowerCase());</tt><br>
+ *                 <i>Result sql:</i><br> <tt>lower(shipcity) &lt;&gt; ?</tt><br>
  *                 </p>
  *             </td>
  *         </tr>
  *         <tr valign="top">
  *             <td>andIsNull(String field)</td>
  *             <td>
- *                 <p>Adds criterion<br/>
- *                 {@code field is null}<br/>
+ *                 <p>Adds criterion<br>
+ *                 {@code field is null}<br>
  *                 where {@code field} is any sql expression
  *                 </p>
- *                 <p>Example:<br/>
- *                 <i>Java-code:</i><br/> <tt>andIsNull("firstname||lastname");</tt><br/>
- *                 <i>Result sql:</i><br/> <tt>firstname||lastname is null</tt><br/>
+ *                 <p>Example:<br>
+ *                 <i>Java-code:</i><br> <tt>andIsNull("firstname||lastname");</tt><br>
+ *                 <i>Result sql:</i><br> <tt>firstname||lastname is null</tt><br>
  *                 </p>
  *             </td>
  *         </tr>
  *         <tr valign="top">
  *             <td>andIsNotNull(String field)</td>
  *             <td>
- *                 <p>Adds criterion<br/>
- *                 {@code field is not null}<br/>
+ *                 <p>Adds criterion<br>
+ *                 {@code field is not null}<br>
  *                 where {@code field} is any sql expression
  *                 </p>
- *                 <p>Example:<br/>
- *                 <i>Java-code:</i><br/> <tt>andIsNotNull("firstname||lastname");</tt><br/>
- *                 <i>Result sql:</i><br/> <tt>firstname||lastname is not null</tt><br/>
+ *                 <p>Example:<br>
+ *                 <i>Java-code:</i><br> <tt>andIsNotNull("firstname||lastname");</tt><br>
+ *                 <i>Result sql:</i><br> <tt>firstname||lastname is not null</tt><br>
  *                 </p>
  *             </td>
  *         </tr>
@@ -84,80 +85,78 @@ import static org.mybatis.generator.api.dom.java.JavaVisibility.PUBLIC;
  *             <td>and(String expression)</td>
  *             <td>
  *                 <p>Adds any string as criterion</p>
- *                 <p>Example:<br/>
- *                 <tt>and("orderdate + interval '1 week' &gt; to_date('01/'||exprdate, 'DD/MM/YYYY')");</tt><br/>
- *                 <tt>and("coalesce(billtolastname, shiptolastname, '') = coalesce(shiptolastname, billtolastname, '')");</tt><br/>
+ *                 <p>Example:<br>
+ *                 <tt>and("orderdate + interval '1 week' &gt; to_date('01/'||exprdate, 'DD/MM/YYYY')");</tt><br>
+ *                 <tt>and("coalesce(billtolastname, shiptolastname, '') = coalesce(shiptolastname, billtolastname, '')");</tt><br>
  *                 </p>
  *             </td>
  *         </tr>
  *         <tr valign="top">
  *             <td>andIf(String field, String operator, Object value)</td>
  *             <td>
- *                 <p>Adds criterion<br/>
- *                 {@code field operator value}<br/>
+ *                 <p>Adds criterion<br>
+ *                 {@code field operator value}<br>
  *                 where {@code field} is any suitable sql expression and {@code operator} is any SQL-operator and {@code value} is a bind variable
  *                 </p>
- *                 <p>Example:<br/>
- *                 <i>Java-code:</i><br/> <tt>andIf("shipcity", "ilike", shipcity);</tt><br/>
- *                 <i>Result sql:</i><br/> <tt>shipcity ilike ?</tt><br/>
+ *                 <p>Example:<br>
+ *                 <i>Java-code:</i><br> <tt>andIf("shipcity", "ilike", shipcity);</tt><br>
+ *                 <i>Result sql:</i><br> <tt>shipcity ilike ?</tt><br>
  *                 </p>
  *             </td>
  *         </tr>
  *         <tr valign="top">
  *             <td>andIf(String field, String operator, Object value, String beforeValue, String afterValue)</td>
  *             <td>
- *                 <p>Adds criterion<br/>
- *                 {@code field operator  beforeValue value afterValue}<br/>
- *                 where <ul>
+ *                 <p>Adds criterion<br>
+ *                 {@code field operator  beforeValue value afterValue}<br>
+ *                 where </p><ul>
  *                     <li>{@code field} is any suitable sql expression</li>
  *                     <li>{@code operator} is any SQL-operator</li>
  *                     <li>{@code value} is a bind variable</li>
  *                     <li>{@code beforeValue} and {@code afterValue} is prefix and suffix for sql substring</li>
  *                 </ul>
- *                 </p>
- *                 <p>Example:<br/>
- *                 <i>Java-code:</i><br/> <tt>andIf("soundex(shiptolastname)", "=", shipcity, "soundex(", ")");</tt><br/>
- *                 <i>Result sql:</i><br/> <tt>soundex(shiptolastname) = soundex(?)</tt><br/>
+ *                 <p>Example:<br>
+ *                 <i>Java-code:</i><br> <tt>andIf("soundex(shiptolastname)", "=", shipcity, "soundex(", ")");</tt><br>
+ *                 <i>Result sql:</i><br> <tt>soundex(shiptolastname) = soundex(?)</tt><br>
  *                 </p>
  *             </td>
  *         </tr>
  *         <tr valign="top">
  *             <td>andRightIf(Object value, String operator, String field)</td>
  *             <td>
- *                 <p>Adds criterion<br/>
- *                 {@code value operator field}<br/>
+ *                 <p>Adds criterion<br>
+ *                 {@code value operator field}<br>
  *                 where {@code field} is any suitable sql expression and {@code operator} is any SQL-operator and {@code value} is a bind variable
  *                 </p>
- *                 <p>Example:<br/>
- *                 <i>Java-code:</i><br/> <tt>andRightIf(somevalue, "~", "column_with_regexp");</tt><br/>
- *                 <i>Result sql:</i><br/> <tt>? ~ column_with_regexp</tt><br/>
+ *                 <p>Example:<br>
+ *                 <i>Java-code:</i><br> <tt>andRightIf(somevalue, "~", "column_with_regexp");</tt><br>
+ *                 <i>Result sql:</i><br> <tt>? ~ column_with_regexp</tt><br>
  *                 </p>
  *             </td>
  *         </tr>
  *         <tr valign="top">
  *             <td>andRightIf(String field, String operator, Object value, String beforeValue, String afterValue)</td>
  *             <td>
- *                 <p>Adds criterion<br/>
- *                 {@code beforeValue value afterValue operator field}<br/>
- *                 where <ul>
+ *                 <p>Adds criterion<br>
+ *                 {@code beforeValue value afterValue operator field}<br>
+ *                 where </p><ul>
  *                     <li>{@code field} is any suitable sql expression</li>
  *                     <li>{@code operator} is any SQL-operator</li>
  *                     <li>{@code value} is a bind variable</li>
  *                     <li>{@code beforeValue} and {@code afterValue} is prefix and suffix for sql substring</li>
  *                 </ul>
- *                 </p>
- *                 <p>Example:<br/>
- *                 <i>Java-code:</i><br/> <tt>andIf(somevalue, "", ", column_with_regexp, 'g')", "regexp_matches(", "");</tt><br/>
- *                 <i>Result sql:</i><br/> <tt>regexp_matches(?, column_with_regexp, 'g')</tt><br/>
+ *                 <p>Example:<br>
+ *                 <i>Java-code:</i><br> <tt>andIf(somevalue, "", ", column_with_regexp, 'g')", "regexp_matches(", "");</tt><br>
+ *                 <i>Result sql:</i><br> <tt>regexp_matches(?, column_with_regexp, 'g')</tt><br>
  *                 </p>
  *             </td>
  *         </tr>
  *         <tr valign="top">
  *             <td>
- *                 and***In(int[] value)<br/>
- *                 and***In(long[] value)<br/>
- *                 and***In(Number[] value)<br/>
- *                 and***In(Set&lt;Number&gt;[] value)<br/>
+ *                 and***In(int[] value)<br>
+ *                 and***In(long[] value)<br>
+ *                 and***In(Number[] value)<br>
+ *                 and***In(Set&lt;Number&gt;[] value)<br>
  *             </td>
  *             <td>
  *                 Decorators for {@code and***In(List&lt;Integer&gt; values)} and {@code and***In(List&lt;Long&gt; values)}
@@ -165,10 +164,10 @@ import static org.mybatis.generator.api.dom.java.JavaVisibility.PUBLIC;
  *         </tr>
  *         <tr valign="top">
  *             <td>
- *                 and***NotIn(int[] value)<br/>
- *                 and***NotIn(long[] value)<br/>
- *                 and***NotIn(Number[] value)<br/>
- *                 and***NotIn(Set&lt;Number&gt;[] value)<br/>
+ *                 and***NotIn(int[] value)<br>
+ *                 and***NotIn(long[] value)<br>
+ *                 and***NotIn(Number[] value)<br>
+ *                 and***NotIn(Set&lt;Number&gt;[] value)<br>
  *             </td>
  *             <td>
  *                 Decorators for {@code and***NotIn(List&lt;Integer&gt; values)} and {@code and***NotIn(List&lt;Long&gt; values)}
@@ -176,11 +175,11 @@ import static org.mybatis.generator.api.dom.java.JavaVisibility.PUBLIC;
  *         </tr>
  *     </tbody>
  * </table>
- * <p></p>
- * <p>Supported Java Client generators:<br/>
- * <b>ANNOTATEDMAPPER</b>: not supported<br/>
- * <b>MIXEDMAPPER</b>: supported<br/>
- * <b>XMLMAPPER</b>: supported<br/>
+ * <p>&nbsp;</p>
+ * <p>Supported Java Client generators:<br>
+ * <b>ANNOTATEDMAPPER</b>: not supported<br>
+ * <b>MIXEDMAPPER</b>: supported<br>
+ * <b>XMLMAPPER</b>: supported<br>
  * </p>
  *
  * @author Vladimir Lokhov
@@ -248,30 +247,30 @@ public class AnyCriteriaPlugin extends PluginAdapter {
     }
     private void and(InnerClass generatedCriteria) {
         generatedCriteria.addMethod(method(
-            PUBLIC, CRITERIA, "and", new Parameter(FullyQualifiedJavaType.getStringInstance(), "condition"), __(
+            PUBLIC, CRITERIA, "and", new Parameter(FullyQualifiedJavaType.getStringInstance(), "condition"), body(
                 "addCriterion(condition);",
                 "return (Criteria)this;"
         )));
     }
     private void andIf(InnerClass generatedCriteria, InnerClass criterion) {
         generatedCriteria.addMethod(method(
-            PUBLIC, CRITERIA, "andIf", _(STRING, "field"), _(STRING, "operator"), _(OBJECT, "value"), __(
+            PUBLIC, CRITERIA, "andIf", param(STRING, "field"), param(STRING, "operator"), param(OBJECT, "value"), body(
                 "return andIf(field, operator, value, null, null);"
         )));
 
-        String invalidConditionIdent = "`+field.replaceAll(`[^0-9A-Za-z _.()]`,``)+`";
+        String invalidConditionIdent = "`+field.replaceAll(`[^0-9A-Za-z param.()]`,``)+`";
         generatedCriteria.addMethod(method(
-            PUBLIC, CRITERIA, "andIf", __(
-                _(STRING, "field"), _(STRING, "operator"), _(OBJECT, "value"), _(STRING, BEFORE_VALUE), _(STRING, AFTER_VALUE)
-            ), __(
+            PUBLIC, CRITERIA, "andIf", parameters(
+                param(STRING, "field"), param(STRING, "operator"), param(OBJECT, "value"), param(STRING, BEFORE_VALUE), param(STRING, AFTER_VALUE)
+            ), body(
                 "if (field == null || field.trim().length() == 0) { field = `null`; }",
-                _("if (operator == null) { addCriterion(`1=2 /* %s.operator */ `); return (Criteria)this; }", invalidConditionIdent),
-                _("if (value == null) { addCriterion(`1=2 /* %s.value */ `); return (Criteria)this; }", invalidConditionIdent),
+                format("if (operator == null) { addCriterion(`1=2 /* %s.operator */ `); return (Criteria)this; }", invalidConditionIdent),
+                format("if (value == null) { addCriterion(`1=2 /* %s.value */ `); return (Criteria)this; }", invalidConditionIdent),
                 "if (value instanceof java.util.Date) value = new java.sql.Date(((java.util.Date)value).getTime());",
                 "String condition = field + ` `+operator+` `;",
                 "Criterion c = new Criterion(condition, value);",
-                _("if (%1$s != null) c.%1$s = %1$s;", BEFORE_VALUE),
-                _("if (%1$s != null) c.%1$s = %1$s;", AFTER_VALUE),
+                format("if (%1$s != null) c.%1$s = %1$s;", BEFORE_VALUE),
+                format("if (%1$s != null) c.%1$s = %1$s;", AFTER_VALUE),
                 "criteria.add(c);",
                 "return (Criteria)this;"
             )
@@ -283,42 +282,42 @@ public class AnyCriteriaPlugin extends PluginAdapter {
 
     private void and_a_op_b(InnerClass generatedCriteria, String method, String operator, String nullFn) {
         generatedCriteria.addMethod(method(
-            PUBLIC, CRITERIA, method, _(STRING, "field"), _(OBJECT, "value"), __(
-                _("if (value == null) return %s(field);", nullFn),
+            PUBLIC, CRITERIA, method, param(STRING, "field"), param(OBJECT, "value"), body(
+                format("if (value == null) return %s(field);", nullFn),
                 "if (value instanceof java.util.Date) value = new java.sql.Date(((java.util.Date)value).getTime());",
-                _("addCriterion(field+` %s `, value, field);", operator),
+                format("addCriterion(field+` %s `, value, field);", operator),
                 "return (Criteria)this;"
         )));
     }
 
     private void and_a_op_null(InnerClass generatedCriteria, String method, String operator) {
         generatedCriteria.addMethod(method(
-        PUBLIC, CRITERIA, method, _(STRING, "field"), __(
-            _("addCriterion(field+` %s null`);", operator),
+        PUBLIC, CRITERIA, method, param(STRING, "field"), body(
+            format("addCriterion(field+` %s null`);", operator),
             "return (Criteria)this;"
         )));
     }
 
     private void andRightIf(InnerClass generatedCriteria, InnerClass criterion) {
         generatedCriteria.addMethod(method(
-            PUBLIC, CRITERIA, "andRightIf", _(OBJECT, "value"), _(STRING, "operator"), _(STRING, "field"), __(
+            PUBLIC, CRITERIA, "andRightIf", param(OBJECT, "value"), param(STRING, "operator"), param(STRING, "field"), body(
                 "return andRightIf(value, operator, field, null, null);"
         )));
 
-        String invalidConditionIdent = "`+field.replaceAll(`[^0-9A-Za-z _.()]`,``)+`";
+        String invalidConditionIdent = "`+field.replaceAll(`[^0-9A-Za-z param.()]`,``)+`";
         generatedCriteria.addMethod(method(
-            PUBLIC, CRITERIA, "andRightIf", __(
-                _(OBJECT, "value"), _(STRING, "operator"), _(STRING, "field"), _(STRING, BEFORE_VALUE), _(STRING, AFTER_VALUE)
-            ), __(
+            PUBLIC, CRITERIA, "andRightIf", parameters(
+                param(OBJECT, "value"), param(STRING, "operator"), param(STRING, "field"), param(STRING, BEFORE_VALUE), param(STRING, AFTER_VALUE)
+            ), body(
                 "if (field == null || field.trim().length() == 0) { field = `null`; }",
-                _("if (operator == null) { addCriterion(`1=2 /* %s.operator */ `); return (Criteria)this; }", invalidConditionIdent),
-                _("if (value == null) { addCriterion(`1=2 /* %s.value */ `); return (Criteria)this; }", invalidConditionIdent),
+                format("if (operator == null) { addCriterion(`1=2 /* %s.operator */ `); return (Criteria)this; }", invalidConditionIdent),
+                format("if (value == null) { addCriterion(`1=2 /* %s.value */ `); return (Criteria)this; }", invalidConditionIdent),
                 "if (value instanceof java.util.Date) value = new java.sql.Date(((java.util.Date)value).getTime());",
                 "String condition = ` `+operator+` `+field;",
                 "Criterion c = new Criterion(condition, value);",
-                _("if (%1$s != null) c.%1$s = %1$s;", BEFORE_VALUE),
-                _("if (%1$s != null) c.%1$s = %1$s;", AFTER_VALUE),
-                _("c.%s = true;", RIGHT_VALUE),
+                format("if (%1$s != null) c.%1$s = %1$s;", BEFORE_VALUE),
+                format("if (%1$s != null) c.%1$s = %1$s;", AFTER_VALUE),
+                format("c.%s = true;", RIGHT_VALUE),
                 "criteria.add(c);",
                 "return (Criteria)this;"
             )
@@ -437,34 +436,34 @@ public class AnyCriteriaPlugin extends PluginAdapter {
                     "list.add(i.intValue());";
 
         generatedCriteria.addMethod(method(
-            PRIVATE, LIST_OF_INTEGER, "arrayOfIntToListOfInteger", _(new JavaArray("int"), "values"), __(
+            PRIVATE, LIST_OF_INTEGER, "arrayOfIntToListOfInteger", param(new JavaArray("int"), "values"), body(
                 "List<Integer> list = new ArrayList<Integer>();",
                 "if (values != null) for (int i : values) list.add(i);",
                 "return list;"
         )));
         generatedCriteria.addMethod(method(
-            PRIVATE, LIST_OF_INTEGER, "arrayOfLongToListOfInteger", _(new JavaArray("long"), "values"), __(
+            PRIVATE, LIST_OF_INTEGER, "arrayOfLongToListOfInteger", param(new JavaArray("long"), "values"), body(
                 "List<Integer> list = new ArrayList<Integer>();",
                 "if (values != null) for (long i : values) if (i >= Integer.MIN_VALUE && i <= Integer.MAX_VALUE) list.add((int)i);",
                 "return list;"
         )));
         generatedCriteria.addMethod(method(
-            PRIVATE, LIST_OF_INTEGER, "arrayOfNumberToListOfInteger", _(new JavaArray("java.lang.Number"), "values"), __(
+            PRIVATE, LIST_OF_INTEGER, "arrayOfNumberToListOfInteger", param(new JavaArray("java.lang.Number"), "values"), body(
                 "List<Integer> list = new ArrayList<Integer>();",
-                _(collectionOfWrappers, "Number"),
+                format(collectionOfWrappers, "Number"),
                 "return list;"
         )));
         generatedCriteria.addMethod(method(
-            PRIVATE, LIST_OF_INTEGER, "setOfNumberToListOfInteger", _(new FullyQualifiedJavaType("java.util.Set<? extends java.lang.Number>"), "values"), __(
+            PRIVATE, LIST_OF_INTEGER, "setOfNumberToListOfInteger", param(new FullyQualifiedJavaType("java.util.Set<? extends java.lang.Number>"), "values"), body(
                 "List<Integer> list = new ArrayList<Integer>();",
-                _(collectionOfWrappers, "Number"),
+                format(collectionOfWrappers, "Number"),
                 "return list;"
         )));
         /*
         generatedCriteria.addMethod(method(
-            PRIVATE, LIST_OF_INTEGER, "listOfLongToListOfInteger", _(new FullyQualifiedJavaType("java.util.List<java.lang.Long>"), "values"), __(
+            PRIVATE, LIST_OF_INTEGER, "listOfLongToListOfInteger", param(new FullyQualifiedJavaType("java.util.List<java.lang.Long>"), "values"), body(
                 "List<Integer> list = new ArrayList<Integer>();",
-                _(collectionOfWrappers, "Long"),
+                param(collectionOfWrappers, "Long"),
                 "return list;"
         )));
         */
@@ -473,34 +472,34 @@ public class AnyCriteriaPlugin extends PluginAdapter {
     private void addToLongTypeConverters(InnerClass generatedCriteria) {
         String collectionOfWrappers = "if (values != null) for (%s i : values) if (i != null) list.add(i.longValue());";
         generatedCriteria.addMethod(method(
-            PRIVATE, LIST_OF_LONG, "arrayOfIntToListOfLong", _(new JavaArray("int"), "values"), __(
+            PRIVATE, LIST_OF_LONG, "arrayOfIntToListOfLong", param(new JavaArray("int"), "values"), body(
                 "List<Long> list = new ArrayList<Long>();",
                 "if (values != null) for (int i : values) list.add((long)i);",
                 "return list;"
         )));
         generatedCriteria.addMethod(method(
-            PRIVATE, LIST_OF_LONG, "arrayOfLongToListOfLong", _(new JavaArray("long"), "values"), __(
+            PRIVATE, LIST_OF_LONG, "arrayOfLongToListOfLong", param(new JavaArray("long"), "values"), body(
                 "List<Long> list = new ArrayList<Long>();",
                 "if (values != null) for (long i : values) list.add(i);",
                 "return list;"
             )));
         generatedCriteria.addMethod(method(
-            PRIVATE, LIST_OF_LONG, "arrayOfNumberToListOfLong", _(new JavaArray("java.lang.Number"), "values"), __(
+            PRIVATE, LIST_OF_LONG, "arrayOfNumberToListOfLong", param(new JavaArray("java.lang.Number"), "values"), body(
                 "List<Long> list = new ArrayList<Long>();",
-                _(collectionOfWrappers, "Number"),
+                format(collectionOfWrappers, "Number"),
                 "return list;"
             )));
         generatedCriteria.addMethod(method(
-            PRIVATE, LIST_OF_LONG, "setOfNumberToListOfLong", _(new FullyQualifiedJavaType("java.util.Set<? extends java.lang.Number>"), "values"), __(
+            PRIVATE, LIST_OF_LONG, "setOfNumberToListOfLong", param(new FullyQualifiedJavaType("java.util.Set<? extends java.lang.Number>"), "values"), body(
                 "List<Long> list = new ArrayList<Long>();",
-                _(collectionOfWrappers, "Number"),
+                format(collectionOfWrappers, "Number"),
                 "return list;"
             )));
         /*
         generatedCriteria.addMethod(method(
-            PRIVATE, LIST_OF_LONG, "listOfIntegerToListOfLong", _(new FullyQualifiedJavaType("java.util.List<? extends java.lang.Integer>"), "values"), __(
+            PRIVATE, LIST_OF_LONG, "listOfIntegerToListOfLong", param(new FullyQualifiedJavaType("java.util.List<? extends java.lang.Integer>"), "values"), body(
                 "List<Long> list = new ArrayList<Long>();",
-                _(collectionOfWrappers, "Integer"),
+                param(collectionOfWrappers, "Integer"),
                 "return list;"
         )));
         */

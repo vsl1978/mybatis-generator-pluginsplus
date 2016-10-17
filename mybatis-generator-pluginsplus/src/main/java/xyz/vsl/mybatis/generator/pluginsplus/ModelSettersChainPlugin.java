@@ -5,11 +5,9 @@ import java.util.List;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 
-import static org.mybatis.generator.api.dom.java.JavaVisibility.PUBLIC;
 import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.*;
 
 /**
@@ -56,7 +54,7 @@ public class ModelSettersChainPlugin extends PluginAdapter {
     @Override
     public boolean modelSetterMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
         if (generateNewSetters) {
-            Method alt = method(method.getVisibility(), topLevelClass.getType(), gen.name(introspectedColumn.getJavaProperty()), __(method));
+            Method alt = method(method.getVisibility(), topLevelClass.getType(), gen.name(introspectedColumn.getJavaProperty()), parameters(method));
             alt.getAnnotations().addAll(method.getAnnotations());
             if (method.getBodyLines() != null)
                 for (String line : method.getBodyLines())

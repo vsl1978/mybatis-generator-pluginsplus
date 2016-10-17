@@ -3,7 +3,6 @@ package xyz.vsl.mybatis.generator.pluginsplus;
 import org.mybatis.generator.api.GeneratedXmlFile;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.xml.Element;
 import org.mybatis.generator.api.dom.xml.TextElement;
@@ -16,20 +15,16 @@ import static org.mybatis.generator.api.dom.java.JavaVisibility.PUBLIC;
 import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.*;
 import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 /**
  * <p>This plugin adds limit and offset (top, first...skip, offset...row...fetch next, etc) clause to the Example class.</p>
- * <p>Configuration parameters:
+ * <p>Configuration parameters:</p>
  * <ul>
  *     <li><b>(required)</b> {@code dialect} &mdash; name of the target sql dialect</li>
  * </ul>
- * </p>
- * <p>Supported SQL dialects:
+ * <p>Supported SQL dialects:</p>
  * <ul>
  *     <li>Apache Derby</li>
  *     <li>Firebird 1.x</li>
@@ -43,12 +38,11 @@ import java.util.regex.Pattern;
  *     <li>Oracle 12</li>
  *     <li>PostgreSQL</li>
  * </ul>
- * </p>
- * <p></p>
- * <p>Supported Java Client generators:<br/>
- * <b>ANNOTATEDMAPPER</b>: not supported<br/>
- * <b>MIXEDMAPPER</b>: supported<br/>
- * <b>XMLMAPPER</b>: supported<br/>
+ * <p>&nbsp;</p>
+ * <p>Supported Java Client generators:<br>
+ * <b>ANNOTATEDMAPPER</b>: not supported<br>
+ * <b>MIXEDMAPPER</b>: supported<br>
+ * <b>XMLMAPPER</b>: supported<br>
  * </p>
  * @author Vladimir Lokhov
  */
@@ -131,10 +125,10 @@ public class PaginationPlugin extends IntrospectorPlugin {
     public boolean modelExampleClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         topLevelClass.addField(field(PRIVATE, INTEGER, "limit"));
         topLevelClass.addField(field(PRIVATE, INTEGER, "offset"));
-        topLevelClass.addMethod(method(PUBLIC, INTEGER, "getLimit", __("return limit;")));
-        topLevelClass.addMethod(method(PUBLIC, INTEGER, "getOffset", __("return offset;")));
+        topLevelClass.addMethod(method(PUBLIC, INTEGER, "getLimit", body("return limit;")));
+        topLevelClass.addMethod(method(PUBLIC, INTEGER, "getOffset", body("return offset;")));
         topLevelClass.addMethod(method(
-            PUBLIC, chain ? topLevelClass.getType() : VOID, "setLimitAndOffset", _(INTEGER, "limit"), _(INTEGER, "offset"), __(
+            PUBLIC, chain ? topLevelClass.getType() : VOID, "setLimitAndOffset", param(INTEGER, "limit"), param(INTEGER, "offset"), body(
                 "if (limit != null && limit > 0) {",
                     "this.limit = limit;",
                     "this.offset = (offset != null && offset > 0) ? offset : null;",
@@ -144,7 +138,7 @@ public class PaginationPlugin extends IntrospectorPlugin {
                 chain ? "return this;" : null
         )));
 
-        topLevelClass.addMethod(method(PUBLIC, chain ? topLevelClass.getType() : VOID, "setLimit", _(INTEGER, "limit"), __((chain ? "return ": "") + "setLimitAndOffset(limit, null);")));
+        topLevelClass.addMethod(method(PUBLIC, chain ? topLevelClass.getType() : VOID, "setLimit", param(INTEGER, "limit"), body((chain ? "return ": "") + "setLimitAndOffset(limit, null);")));
 
         return true;
     }

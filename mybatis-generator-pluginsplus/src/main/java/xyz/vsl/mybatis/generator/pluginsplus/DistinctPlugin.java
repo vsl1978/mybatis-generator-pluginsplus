@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -161,27 +160,27 @@ public class DistinctPlugin extends IntrospectorPlugin {
 
                 if (JavaVersion.java8.isSubsetOf(targetJavaVersion)) {
                     topLevelClass.addMethod(method(
-                        PUBLIC, STATIC, new FullyQualifiedJavaType(returnType), methodName, _(argType, "beans"), __(
-                            _("if (beans == null || beans.isEmpty()) return new %s();", returnTypeImpl),
-                            _("return beans.stream().map(%s::%s).unordered().distinct().collect(java.util.stream.Collectors.toList());", shortName, getterMethod)
+                        PUBLIC, STATIC, new FullyQualifiedJavaType(returnType), methodName, param(argType, "beans"), body(
+                            format("if (beans == null || beans.isEmpty()) return new %s();", returnTypeImpl),
+                            format("return beans.stream().map(%s::%s).unordered().distinct().collect(java.util.stream.Collectors.toList());", shortName, getterMethod)
                     )));
                 }
                 else {
                     topLevelClass.addMethod(method(
-                        PUBLIC, STATIC, new FullyQualifiedJavaType(returnType), methodName, _(argType, "beans"), __(
-                            _("%s list = new %s();", returnType, returnTypeImpl),
+                        PUBLIC, STATIC, new FullyQualifiedJavaType(returnType), methodName, param(argType, "beans"), body(
+                            format("%s list = new %s();", returnType, returnTypeImpl),
                             "if (beans == null || beans.isEmpty()) return list;",
                             "if (beans.size() == 1)",
                             "{",
-                            _("%s bean = beans.iterator().next();", shortName),
+                            format("%s bean = beans.iterator().next();", shortName),
                             "if (bean == null) return list;",
-                            _("%s v = bean.%s();", targetTypeShortName, getterMethod),
+                            format("%s v = bean.%s();", targetTypeShortName, getterMethod),
                             "if (v != null) list.add(v);",
                             "return list;",
                             "}",
-                            _("Set<%s> set = new LinkedHashSet<%1$s>();", targetTypeShortName),
-                            _("for (%s bean : beans) {", shortName),
-                            _("%s v = bean.%s();", targetTypeShortName, getterMethod),
+                            format("Set<%s> set = new LinkedHashSet<%1$s>();", targetTypeShortName),
+                            format("for (%s bean : beans) {", shortName),
+                            format("%s v = bean.%s();", targetTypeShortName, getterMethod),
                             "if (v != null) set.add(v);",
                             "}",
                             "if (!set.isEmpty()) list.addAll(set);",
@@ -193,7 +192,7 @@ public class DistinctPlugin extends IntrospectorPlugin {
 
         if (!SKIP.equals(singleMethodName)) {
             topLevelClass.addMethod(method(
-                PUBLIC, STATIC, topLevelClass.getType(), singleMethodName, _(argType, "beans"), __(
+                PUBLIC, STATIC, topLevelClass.getType(), singleMethodName, param(argType, "beans"), body(
                     "if (beans == null || beans.size() != 1) return null;",
                     "return beans.iterator().next();"
             )));
@@ -201,7 +200,7 @@ public class DistinctPlugin extends IntrospectorPlugin {
 
         if (!SKIP.equals(firstMethodName)) {
             topLevelClass.addMethod(method(
-                PUBLIC, STATIC, topLevelClass.getType(), firstMethodName, _(argType, "beans"), __(
+                PUBLIC, STATIC, topLevelClass.getType(), firstMethodName, param(argType, "beans"), body(
                     "if (beans == null || beans.isEmpty()) return null;",
                     "return beans.iterator().next();"
             )));

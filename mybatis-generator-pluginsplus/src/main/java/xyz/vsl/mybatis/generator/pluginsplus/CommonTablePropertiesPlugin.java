@@ -10,19 +10,19 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 /**
- * <p>Provides global configuration parameters (properties and attributes) for &lt;table&gt;:<ul>
+ * <p>Provides global configuration parameters (properties and attributes) for &lt;table&gt;:</p><ul>
  *     <li>alias</li>
  *     <li>ignoreQualifiersAtRuntime</li>
  *     <li>modelOnly</li>
  *     <li>runtimeCatalog</li>
  *     <li>runtimeSchema</li>
- * </ul> </p>
- * <p>Plugin's properties:<ul>
+ * </ul>
+ * <p>Plugin's properties:</p><ul>
  *     <li><i>(optional)</i> tables &mdash; regular expression that specifies tables to process</li>
  *     <li><i>(optional)</i> excludeTables &mdash; regular expression that excludes tables</li>
- * </ul></p>
+ * </ul>
  * <p>It is strongly recommended to use this plugin before any other.</p>
- * <p>Example:
+ * <p>Example:</p>
  * <pre>
  * &lt;plugin type="xyz.vsl.mybatis.generator.pluginsplus.CommonTablePropertiesPlugin"&gt;
  *     &lt;property name="ignoreQualifiersAtRuntime" value="true"/&gt;
@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
  *     &lt;property name="modelOnly" value="true"/&gt;
  * &lt;/plugin&gt;
  * </pre>
- * </p>
  * @author Vladimir Lokhov
  */
 public class CommonTablePropertiesPlugin extends PluginAdapter {

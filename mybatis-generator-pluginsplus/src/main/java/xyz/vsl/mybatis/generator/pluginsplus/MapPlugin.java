@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
@@ -137,17 +136,17 @@ public class MapPlugin extends IntrospectorPlugin {
                 FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("java.util.Map<" + targetType + ", " + selfType + ">");
                 if (JavaVersion.java8.isSubsetOf(targetJavaVersion)) {
                     topLevelClass.addMethod(method(
-                        PUBLIC, STATIC, returnType, mapPrefix + uProperty, _(collection, "beans"), __(
-                            _("if (beans == null || beans.isEmpty()) return new LinkedHashMap<%s,%s>();", tt, shortName),
-                            _("return beans.stream().collect(Collectors.toMap(%s::%s, t->t, (s,a)->s));", shortName, getterMethod)
+                        PUBLIC, STATIC, returnType, mapPrefix + uProperty, param(collection, "beans"), body(
+                            format("if (beans == null || beans.isEmpty()) return new LinkedHashMap<%s,%s>();", tt, shortName),
+                            format("return beans.stream().collect(Collectors.toMap(%s::%s, t->t, (s,a)->s));", shortName, getterMethod)
                     )));
                 } else {
                     topLevelClass.addMethod(method(
-                        PUBLIC, STATIC, returnType, mapPrefix + uProperty, _(collection, "beans"), __(
-                            _("Map<%s, %s> map = new LinkedHashMap<%1$s,%2$s>();", tt, shortName),
+                        PUBLIC, STATIC, returnType, mapPrefix + uProperty, param(collection, "beans"), body(
+                            format("Map<%s, %s> map = new LinkedHashMap<%1$s,%2$s>();", tt, shortName),
                             "if (beans == null || beans.isEmpty()) return map;",
-                            _("for (%s bean : beans) {", shortName),
-                            _("map.put(bean.%s(), bean);", getterMethod),
+                            format("for (%s bean : beans) {", shortName),
+                            format("map.put(bean.%s(), bean);", getterMethod),
                             "}",
                             "return map;"
                     )));
@@ -159,19 +158,19 @@ public class MapPlugin extends IntrospectorPlugin {
                 FullyQualifiedJavaType returnType = new FullyQualifiedJavaType("java.util.Map<" + targetType + ", java.util.List<" + selfType + ">>");
                 if (JavaVersion.java8.isSubsetOf(targetJavaVersion)) {
                     topLevelClass.addMethod(method(
-                        PUBLIC, STATIC, returnType, mapAllPrefix + uProperty, _(collection, "beans"), __(
-                            _("if (beans == null || beans.isEmpty()) return new LinkedHashMap<%s, List<%s>>();", tt, shortName),
-                            _("return beans.stream().collect(Collectors.groupingBy(%s::%s));", shortName, getterMethod)
+                        PUBLIC, STATIC, returnType, mapAllPrefix + uProperty, param(collection, "beans"), body(
+                            format("if (beans == null || beans.isEmpty()) return new LinkedHashMap<%s, List<%s>>();", tt, shortName),
+                            format("return beans.stream().collect(Collectors.groupingBy(%s::%s));", shortName, getterMethod)
                     )));
                 } else {
                     topLevelClass.addMethod(method(
-                        PUBLIC, STATIC, returnType, mapAllPrefix + uProperty, _(collection, "beans"), __(
-                            _("Map<%s, List<%s>> map = new LinkedHashMap<%1$s, List<%2$s>>();", tt, shortName),
+                        PUBLIC, STATIC, returnType, mapAllPrefix + uProperty, param(collection, "beans"), body(
+                            format("Map<%s, List<%s>> map = new LinkedHashMap<%1$s, List<%2$s>>();", tt, shortName),
                             "if (beans == null || beans.isEmpty()) return map;",
-                            _("for (%s bean : beans) {", shortName),
-                            _("%s v = bean.%s();", tt, getterMethod),
-                            _("List<%s> list = map.get(v);", shortName),
-                            _("if (list == null) map.put(v, list = new ArrayList<%s>());", shortName),
+                            format("for (%s bean : beans) {", shortName),
+                            format("%s v = bean.%s();", tt, getterMethod),
+                            format("List<%s> list = map.get(v);", shortName),
+                            format("if (list == null) map.put(v, list = new ArrayList<%s>());", shortName),
                             "list.add(bean);",
                             "}",
                             "return map;"

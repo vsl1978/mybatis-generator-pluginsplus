@@ -5,11 +5,9 @@ import org.mybatis.generator.api.dom.java.InnerClass;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.api.dom.xml.Element;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -19,19 +17,18 @@ import static org.mybatis.generator.api.dom.java.JavaVisibility.*;
 
 /**
  * <p>Provides the ability to store modified fields (<b>including {@code null}-values</b>) using insertSelective and updateBy*Selective methods.</p>
- * <p>Plugin's properties:<ul>
+ * <p>Plugin's properties:</p><ul>
  *     <li><i>(optional)</i> tables &mdash; regular expression that specifies tables to process</li>
  *     <li><i>(optional)</i> excludeTables &mdash; regular expression that excludes tables</li>
- *     <li><i>(optional)</i> insertSelectiveWithNullMethodName &mdash; specifies name of the new insert method in the Mapper interface. Default value is '<tt>insertSelectiveWithNull</tt>'.<br/>If property value is '<tt>insertSelective</tt>' then existing method's behaviour will be changed. This method will be generated (or modified) if the insert statement is enabled.</li>
- *     <li><i>(optional)</i> updateByExampleSelectiveWithNullMethodName &mdash; specifies name of the new update method in the Mapper interface. Default value is '<tt>updateByExampleSelectiveWithNull</tt>'.<br/>If property value is '<tt>updateByExampleSelective</tt>' then existing method's behaviour will be changed. This method will be generated (or modified) if the update by primary key statement is enabled.</li>
- *     <li><i>(optional)</i> updateByPrimaryKeySelectiveWithNullMethodName &mdash; specifies name of the new update method in the Mapper interface. Default value is '<tt>updateByPrimaryKeySelectiveWithNull</tt>'.<br/>If property value is '<tt>updateByPrimaryKeySelective</tt>' then existing method's behaviour will be changed. This method will be generated (or modified) if the update by example statement is enabled.</li>
+ *     <li><i>(optional)</i> insertSelectiveWithNullMethodName &mdash; specifies name of the new insert method in the Mapper interface. Default value is '<tt>insertSelectiveWithNull</tt>'.<br>If property value is '<tt>insertSelective</tt>' then existing method's behaviour will be changed. This method will be generated (or modified) if the insert statement is enabled.</li>
+ *     <li><i>(optional)</i> updateByExampleSelectiveWithNullMethodName &mdash; specifies name of the new update method in the Mapper interface. Default value is '<tt>updateByExampleSelectiveWithNull</tt>'.<br>If property value is '<tt>updateByExampleSelective</tt>' then existing method's behaviour will be changed. This method will be generated (or modified) if the update by primary key statement is enabled.</li>
+ *     <li><i>(optional)</i> updateByPrimaryKeySelectiveWithNullMethodName &mdash; specifies name of the new update method in the Mapper interface. Default value is '<tt>updateByPrimaryKeySelectiveWithNull</tt>'.<br>If property value is '<tt>updateByPrimaryKeySelective</tt>' then existing method's behaviour will be changed. This method will be generated (or modified) if the update by example statement is enabled.</li>
  * </ul>
- * </p>
- * <p></p>
- * <p>Supported Java Client generators:<br/>
- * <b>ANNOTATEDMAPPER</b>: not supported<br/>
- * <b>MIXEDMAPPER</b>: not supported<br/>
- * <b>XMLMAPPER</b>: supported<br/>
+ * <p>&nbsp;</p>
+ * <p>Supported Java Client generators:<br>
+ * <b>ANNOTATEDMAPPER</b>: not supported<br>
+ * <b>MIXEDMAPPER</b>: not supported<br>
+ * <b>XMLMAPPER</b>: supported<br>
  * </p>
  * @author Vladimir Lokhov
  */
@@ -115,14 +112,14 @@ public class SelectiveWithNullPlugin extends IntrospectorPlugin {
     }
 
     private void generateResetMethod(TopLevelClass topLevelClass) {
-        topLevelClass.addMethod(method(PUBLIC, topLevelClass.getType(), resetMethodName, _("%s = new Fields(); return this;", fieldName)));
+        topLevelClass.addMethod(method(PUBLIC, topLevelClass.getType(), resetMethodName, format("%s = new Fields(); return this;", fieldName)));
     }
 
     @Override
     public boolean clientUpdateByExampleSelectiveMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
         if (!matched(introspectedTable)) return true;
         if (!updateByExampleMethod.equals(SKIP) && !updateByExampleMethod.equals(BASE_UPDATE_BY_EXAMPLE) && introspectedTable.getTableConfiguration().isUpdateByExampleStatementEnabled()) {
-            interfaze.addMethod(method(PUBLIC, method.getReturnType(), updateByExampleMethod, __(method)));
+            interfaze.addMethod(method(PUBLIC, method.getReturnType(), updateByExampleMethod, parameters(method)));
         }
         return true;
     }
@@ -131,7 +128,7 @@ public class SelectiveWithNullPlugin extends IntrospectorPlugin {
     public boolean clientUpdateByPrimaryKeySelectiveMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
         if (!matched(introspectedTable)) return true;
         if (!updateByPKMethod.equals(SKIP) && !updateByPKMethod.equals(BASE_UPDATE_BY_PK) && introspectedTable.getTableConfiguration().isUpdateByPrimaryKeyStatementEnabled()) {
-            interfaze.addMethod(method(PUBLIC, method.getReturnType(), updateByPKMethod, __(method)));
+            interfaze.addMethod(method(PUBLIC, method.getReturnType(), updateByPKMethod, parameters(method)));
         }
         return true;
     }
@@ -140,7 +137,7 @@ public class SelectiveWithNullPlugin extends IntrospectorPlugin {
     public boolean clientInsertSelectiveMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
         if (!matched(introspectedTable)) return true;
         if (!insertMethod.equals(SKIP) && !insertMethod.equals(BASE_INSERT) && introspectedTable.getTableConfiguration().isInsertStatementEnabled()) {
-            interfaze.addMethod(method(PUBLIC, method.getReturnType(), insertMethod, __(method)));
+            interfaze.addMethod(method(PUBLIC, method.getReturnType(), insertMethod, parameters(method)));
         }
         return true;
     }
@@ -159,11 +156,11 @@ public class SelectiveWithNullPlugin extends IntrospectorPlugin {
         for (IntrospectedColumn c : introspectedTable.getAllColumns()) {
             String field = c.getJavaProperty();
             cls.addField(field(PROTECTED, BOOL, field));
-            cls.addMethod(method(PUBLIC, BOOL, "is"+camel(field), _("return %s;", field)));
+            cls.addMethod(method(PUBLIC, BOOL, "is"+camel(field), format("return %s;", field)));
         }
         topLevelClass.addInnerClass(cls);
-        topLevelClass.addField(field(PROTECTED, TRANSIENT, cls.getType(), fieldName, _("new Fields()")));
-        topLevelClass.addMethod(method(PUBLIC, cls.getType(), getterName, _("return %s;", fieldName)));
+        topLevelClass.addField(field(PROTECTED, TRANSIENT, cls.getType(), fieldName, format("new Fields()")));
+        topLevelClass.addMethod(method(PUBLIC, cls.getType(), getterName, format("return %s;", fieldName)));
     }
 
     @Override

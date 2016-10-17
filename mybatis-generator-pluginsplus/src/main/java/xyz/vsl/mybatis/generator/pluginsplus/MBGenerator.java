@@ -12,7 +12,6 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.internal.rules.Rules;
 
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
@@ -62,8 +61,8 @@ final class MBGenerator {
     public static void addStringField(InnerClass criterion, String name) {
         for (Field f : criterion.getFields())
             if (f.getName().equals(name)) return;
-        criterion.addField(field(PRIVATE, FQJT.STRING, name, _("\"\"")));
-        criterion.addMethod(method(PUBLIC, FQJT.STRING, "get" + camel(name), _("return "+name+";")));
+        criterion.addField(field(PRIVATE, FQJT.STRING, name, format("\"\"")));
+        criterion.addMethod(method(PUBLIC, FQJT.STRING, "get" + camel(name), format("return "+name+";")));
     }
 
     public static Method getDeclaredMethod(InnerClass klazz, String methodName, FullyQualifiedJavaType ... parameters) {
@@ -132,32 +131,32 @@ final class MBGenerator {
         return f;
     }
 
-    public static StringBuilder _(String s, String ... args) {
+    public static StringBuilder format(String s, String ... args) {
         if (args.length == 0)
             return new StringBuilder(s);
         return new StringBuilder(String.format(s, (Object[])args));
     }
 
-    public static Parameter _(FullyQualifiedJavaType type, String name) {
+    public static Parameter param(FullyQualifiedJavaType type, String name) {
         return new Parameter(type, name);
     }
 
-    public static Parameter _(FullyQualifiedJavaType type, String name, boolean isVararg) {
+    public static Parameter param(FullyQualifiedJavaType type, String name, boolean isVararg) {
         return new Parameter(type, name, isVararg);
     }
 
-    public static String[] __(CharSequence ... args) {
+    public static String[] body(CharSequence ... args) {
         String[] lines = new String[args.length];
         for (int i = 0; i < args.length; i++)
             if (args[i] != null) lines[i] = args[i].toString();
         return lines;
     }
 
-    public static Parameter[] __(Parameter ... args) {
+    public static Parameter[] parameters(Parameter ... args) {
         return args;
     }
 
-    public static Parameter[] __(Method method) {
+    public static Parameter[] parameters(Method method) {
         if (method == null || method.getParameters() == null)
             return new Parameter[0];
         return method.getParameters().toArray(new Parameter[method.getParameters().size()]);
@@ -167,7 +166,7 @@ final class MBGenerator {
         for (Field f : criterion.getFields())
             if (f.getName().equals(name)) return;
         criterion.addField(field(PRIVATE, FQJT.BOOL, name));
-        criterion.addMethod(method(PUBLIC, FQJT.BOOL, "is" + camel(name), _("return "+name+";")));
+        criterion.addMethod(method(PUBLIC, FQJT.BOOL, "is" + camel(name), format("return "+name+";")));
     }
 /*
     public static XmlElement find(XmlElement parent, String ... path) {

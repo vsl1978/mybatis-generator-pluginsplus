@@ -21,31 +21,31 @@ import java.util.regex.Pattern;
 
 /**
  * <p>Provides the ability to remap awkward SQL Type to more convenient one (e.g. DECIMAL and java.math.BigDecimal to BIGINT and Long).</p>
- * <p>Plugin's properties:<ul>
+ * <p>Plugin's properties:</p><ul>
  *     <li><i>(optional)</i> tables &mdash; regular expression that specifies tables to process</li>
  *     <li><i>(optional)</i> excludeTables &mdash; regular expression that excludes tables</li>
  *     <li><tt>name="<b>from:TYPE</b>" value="<b>RESULT</b>"</tt> &mdash; specifies SQL type to process.</li>
  * </ul>
  * where
- * <table border="1" cellpadding="0" cellspacing="0">
+ * <table border="1" cellpadding="0" cellspacing="0" summary="Parameters description">
  *     <tbody>
  *         <tr>
  *             <td valign="top"><b>TYPE</b></td>
  *             <td>
  *                 <p>
- *                     <i>JDBCTypeName</i><br/>
+ *                     <i>JDBCTypeName</i><br>
  *                     One of the {@link java.sql.Types java.sql.Types} constants
  *                 </p>
  *                 <p>
- *                     <i>JDBCTypeName(minLength...maxLength)</i><br/>
+ *                     <i>JDBCTypeName(minLength...maxLength)</i><br>
  *                     One of the {@link java.sql.Types java.sql.Types} constants with field length
  *                 </p>
  *                 <p>
- *                     <i>JDBCTypeName(minLength...maxLength, minScale...maxScale)</i><br/>
+ *                     <i>JDBCTypeName(minLength...maxLength, minScale...maxScale)</i><br>
  *                     One of the {@link java.sql.Types java.sql.Types} constants with field length and scale
  *                 </p>
  *                 <p>
- *                     <i>/regexp/</i><br/>
+ *                     <i>/regexp/</i><br>
  *                     Regular expression to match native SQL type name
  *                 </p>
  *             </td>
@@ -54,41 +54,39 @@ import java.util.regex.Pattern;
  *             <td valign="top"><b>RESULT</b></td>
  *             <td>
  *                 <p>
- *                     <i>JDBCTypeName</i><br/>
+ *                     <i>JDBCTypeName</i><br>
  *                     Replace source {@code JDBCTypeName} with specified {@code JDBCTypeName} and source {@code length} and {@code scale}
  *                 </p>
  *                 <p>
- *                     <i>JDBCTypeName(length)</i><br/>
+ *                     <i>JDBCTypeName(length)</i><br>
  *                     Replace source {@code JDBCTypeName} and {@code length} with specified {@code JDBCTypeName} and {@code length} and source {@code scale}
  *                 </p>
  *                 <p>
- *                     <i>JDBCTypeName(length,scale)</i><br/>
+ *                     <i>JDBCTypeName(length,scale)</i><br>
  *                     Replace source {@code JDBCTypeName}, {@code length} and {@code scale} with specified {@code JDBCTypeName}, {@code length} and {@code scale}
  *                 </p>
  *                 <p>
- *                     <i>JDBCTypeName[(length[,scale])], fully qualified Java type</i><br/>
+ *                     <i>JDBCTypeName[(length[,scale])], fully qualified Java type</i><br>
  *                     Replace source {@code JDBCTypeName} (and possibly {@code length}, {@code scale}) with specified {@code JDBCTypeName} ({@code length} and {@code scale}) and use specified Java type
  *                 </p>
  *                 <p>
- *                     <i>JDBCTypeName[(length[,scale])], javaType=fully qualified Java class name, typeHandler=fully qualified TypeHandler's Java class name</i><br/>
+ *                     <i>JDBCTypeName[(length[,scale])], javaType=fully qualified Java class name, typeHandler=fully qualified TypeHandler's Java class name</i><br>
  *                     Replace source {@code JDBCTypeName} (and possibly {@code length}, {@code scale}) with specified {@code JDBCTypeName} ({@code length} and {@code scale}), use specified Java type and TypeHandler
  *                 </p>
  *             </td>
  *         </tr>
  *     </tbody>
  * </table>
- * </p>
- * <p></p>
- * <p>Example:
+ * <p>&nbsp;</p>
+ * <p>Example:</p>
  * <pre>
- * &lt;plugin type="xyz.vsl.mybatis.generator.pluginsplus.JDBCTypesPlugin">
+ * &lt;plugin type="xyz.vsl.mybatis.generator.pluginsplus.JDBCTypesPlugin"&gt;
  *     &lt;property name="from:CLOB" value="VARCHAR"/&gt;
  *     &lt;property name="from:DECIMAL(10..20,0)" value="BIGINT, java.lang.Long"/&gt;
  *     &lt;property name="from:/(?i)TIMESTAMP\b.&#42;/" value="TIMESTAMP, java.util.Date"/&gt;
  *     &lt;property name="from:/(?i)bar_type/" value="OTHER, javaType=foo.sql.udt.Bar, typeHandler=foo.sql.mybatis.BarTypeHandler"/&gt;
  * &lt;/plugin&gt;
  * </pre>
- * </p>
  * @author Vladimir Lokhov
  */
 public class JDBCTypesPlugin extends IntrospectorPlugin {

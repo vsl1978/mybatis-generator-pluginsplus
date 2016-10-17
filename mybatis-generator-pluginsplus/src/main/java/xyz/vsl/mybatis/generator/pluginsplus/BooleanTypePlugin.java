@@ -17,13 +17,13 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
 
 /**
  * <p>Provides a converter (type handler) from Java Boolean type to VARCHAR and NUMBER(x,0) columns.</p>
- * <p>&lt;table&gt; properties:<ul>
+ * <p>&lt;table&gt; properties:</p><ul>
  *     <li>boolean-varchar-columns &mdash; comma-separated list of VARCHAR column names (case insensitive) to map to Boolean fields</li>
  *     <li>boolean-integer-columns &mdash; comma-separated list of NUMBER(x,0) (BIT, SMALLINT, INTEGER, BIGINT,...) column names (case insensitive) to map to Boolean fields</li>
- * </ul></p>
+ * </ul>
  * <p>In case of VARCHAR column converter stores 'Y' for {@code true} and 'N' for {@code false}. Valid input values for {@code true} are 'y', 't', '1', 'yes', 'true' (case-insensitive)</p>
  * <p>In case of NUMBER column converter stores 1 for {@code true} and 0 for {@code false}</p>
- * <p></p>
+ * <p>&nbsp;</p>
  * <p>Example:</p>
  * <pre>
  * &lt;plugin type="xyz.vsl.mybatis.generator.pluginsplus.BooleanTypePlugin"/&gt;
@@ -199,7 +199,7 @@ public class BooleanTypePlugin extends PluginAdapter {
 
         @Override
         public String generateClassName() {
-            return "VarcharBoolean_"+toCodes(getTRUE())+"_"+toCodes(getFALSE());
+            return "VarcharBoolean_"+toCodes(getTRUE())+"param"+toCodes(getFALSE());
         }
 
         @Override
@@ -229,7 +229,7 @@ public class BooleanTypePlugin extends PluginAdapter {
 
         @Override
         public String generateClassName() {
-            return "IntegerBoolean_"+toString(getTRUE()) +"_"+toString(getFALSE());
+            return "IntegerBoolean_"+toString(getTRUE()) +"param"+toString(getFALSE());
         }
 
         @Override

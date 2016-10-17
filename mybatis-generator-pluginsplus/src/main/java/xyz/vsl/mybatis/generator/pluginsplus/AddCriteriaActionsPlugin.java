@@ -17,6 +17,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
 /**
  * <p>Provides the capability of calling some Mapper's methods via Example class.</p>
  * <table border="1" cellspacing="0">
+ *     <caption>List of generated methods</caption>
  *     <thead>
  *         <tr>
  *             <th>Generated method's name</th>
@@ -31,7 +32,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code selectByExample}</p>
- *                 <p>Configuration parameter: <i>listMethodName</i>. <br/>Default value: "list"</p>
+ *                 <p>Configuration parameter: <i>listMethodName</i>. <br>Default value: "list"</p>
  *                 <p>Generated: always</p>
  *             </td>
  *         </tr>
@@ -42,7 +43,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code selectByExampleWithBLOBs}</p>
- *                 <p>Configuration parameter: <i>listWithBLOBsMethodName</i>. <br/>Default value: "listWithBLOBs"</p>
+ *                 <p>Configuration parameter: <i>listWithBLOBsMethodName</i>. <br>Default value: "listWithBLOBs"</p>
  *                 <p>Generated: if the table has BLOB columns</p>
  *             </td>
  *         </tr>
@@ -53,7 +54,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code selectByExample} and returns first item or {@code null}</p>
- *                 <p>Configuration parameter: <i>firstMethodName</i>. <br/>Default value: "first"</p>
+ *                 <p>Configuration parameter: <i>firstMethodName</i>. <br>Default value: "first"</p>
  *                 <p>Generated: always</p>
  *             </td>
  *         </tr>
@@ -64,7 +65,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code selectByExampleWithBLOBs} and returns first item or {@code null}</p>
- *                 <p>Configuration parameter: <i>firstWithBLOBsMethodName</i>. <br/>Default value: "firstWithBLOBs"</p>
+ *                 <p>Configuration parameter: <i>firstWithBLOBsMethodName</i>. <br>Default value: "firstWithBLOBs"</p>
  *                 <p>Generated: if the table has BLOB columns</p>
  *             </td>
  *         </tr>
@@ -75,7 +76,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code selectByExample} and returns single item or {@code null}. Returns {@code null} if there are more than one item.</p>
- *                 <p>Configuration parameter: <i>singleMethodName</i>. <br/>Default value: "single"</p>
+ *                 <p>Configuration parameter: <i>singleMethodName</i>. <br>Default value: "single"</p>
  *                 <p>Generated: always</p>
  *             </td>
  *         </tr>
@@ -86,7 +87,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code selectByExampleWithBLOBs} and returns single item or {@code null}. Returns {@code null} if there are more than one item.</p>
- *                 <p>Configuration parameter: <i>singleWithBLOBsMethodName</i>. <br/>Default value: "singleWithBLOBs"</p>
+ *                 <p>Configuration parameter: <i>singleWithBLOBsMethodName</i>. <br>Default value: "singleWithBLOBs"</p>
  *                 <p>Generated: if the table has BLOB columns</p>
  *             </td>
  *         </tr>
@@ -97,7 +98,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code selectByExample} and returns first item. Returns {@code new Model()} if there is no result.</p>
- *                 <p>Configuration parameter: <i>optionalMethodName</i>. <br/>Default value: "optional"</p>
+ *                 <p>Configuration parameter: <i>optionalMethodName</i>. <br>Default value: "optional"</p>
  *                 <p>Generated: always</p>
  *             </td>
  *         </tr>
@@ -108,7 +109,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code selectByExampleWithBLOBs} and returns first item. Returns {@code new BLOB()} if there is no result.</p>
- *                 <p>Configuration parameter: <i>optionalWithBLOBsMethodName</i>. <br/>Default value: "optionalWithBLOBs"</p>
+ *                 <p>Configuration parameter: <i>optionalWithBLOBsMethodName</i>. <br>Default value: "optionalWithBLOBs"</p>
  *                 <p>Generated: if the table has BLOB columns</p>
  *             </td>
  *         </tr>
@@ -119,7 +120,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code deleteByExample}.</p>
- *                 <p>Configuration parameter: <i>deleteMethodName</i>. <br/>Default value: "delete"</p>
+ *                 <p>Configuration parameter: <i>deleteMethodName</i>. <br>Default value: "delete"</p>
  *                 <p>Generated: always</p>
  *             </td>
  *         </tr>
@@ -130,7 +131,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code countByExample}.</p>
- *                 <p>Configuration parameter: <i>countMethodName</i>. <br/>Default value: "count"</p>
+ *                 <p>Configuration parameter: <i>countMethodName</i>. <br>Default value: "count"</p>
  *                 <p>Generated: always</p>
  *             </td>
  *         </tr>
@@ -141,7 +142,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code updateByExample}.</p>
- *                 <p>Configuration parameter: <i>updateMethodName</i>. <br/>Default value: "update"</p>
+ *                 <p>Configuration parameter: <i>updateMethodName</i>. <br>Default value: "update"</p>
  *                 <p>Generated: always</p>
  *             </td>
  *         </tr>
@@ -152,7 +153,7 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code updateSelectiveByExample}.</p>
- *                 <p>Configuration parameter: <i>updateSelectiveMethodName</i>. <br/>Default value: "updateSelective"</p>
+ *                 <p>Configuration parameter: <i>updateSelectiveMethodName</i>. <br>Default value: "updateSelective"</p>
  *                 <p>Generated: always</p>
  *             </td>
  *         </tr>
@@ -163,14 +164,14 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  *             </td>
  *             <td>
  *                 <p>Invokes mapper's method {@code updateByExampleWithBLOBs}.</p>
- *                 <p>Configuration parameter: <i>updateWithBLOBsMethodName</i>. <br/>Default value: "updateWithBLOBs"</p>
+ *                 <p>Configuration parameter: <i>updateWithBLOBsMethodName</i>. <br>Default value: "updateWithBLOBs"</p>
  *                 <p>Generated: always</p>
  *             </td>
  *         </tr>
  *     </tbody>
  * </table>
  * <p>
- *     <sup><b><a name="AddCriteriaActionsPlugin.reference-1">*</a></b></sup>Model &mdash; Base record model class<br/>
+ *     <sup><b><a name="AddCriteriaActionsPlugin.reference-1">*</a></b></sup>Model &mdash; Base record model class<br>
  *     <sup><b><a name="AddCriteriaActionsPlugin.reference-2">**</a></b></sup>BLOB &mdash; record with BLOBs model class. If table's modelType is 'flat' then BLOB-class is the same as Model (base record)
  * </p>
  * <p>To prevent generation of any method set corresponding configuration parameter to "-".</p>
@@ -190,11 +191,11 @@ import static xyz.vsl.mybatis.generator.pluginsplus.MBGenerator.FQJT.*;
  * SqlSession sql = .....;
  * List&lt;Orders&gt; guests = new OrdersExample().createCriteria().andShipstateEqualTo("CA").andBillstateNotEqualTo("CA").list(sql);
  * </pre>
- * <p></p>
- * <p><b>Dependencies:</b>
+ * <p>&nbsp;</p>
+ * <p><b>Dependencies:</b></p>
  * <ul>
  *     <li>{@link xyz.vsl.mybatis.generator.pluginsplus.ExampleMethodsChainPlugin ExampleMethodsChainPlugin} &mdash; <b>recommended</b></li>
- * </ul></p>
+ * </ul>
  *
  * @author Vladimir Lokhov
  */
@@ -329,11 +330,11 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
         topLevelClass.addImportedType(cls.imports.base);
         if (!listMethod.startsWith(SKIP) && introspectedTable.getRules().generateSelectByExampleWithoutBLOBs()) {
             topLevelClass.addMethod(method(
-                PUBLIC, new FullyQualifiedJavaType(returnType), listMethod, _(sqlSession, "sql"), __(
+                PUBLIC, new FullyQualifiedJavaType(returnType), listMethod, param(sqlSession, "sql"), body(
                     "return sql.getMapper(" + cls.names.mapper + ".class).selectByExample(this);"
             )));
             topLevelClass.addMethod(method(
-                PUBLIC, new FullyQualifiedJavaType(returnType), listMethod, _(cls.types.mapper, "mapper"), __(
+                PUBLIC, new FullyQualifiedJavaType(returnType), listMethod, param(cls.types.mapper, "mapper"), body(
                     "return mapper.selectByExample(this);"
             )));
         }
@@ -343,11 +344,11 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
                 topLevelClass.addImportedType(cls.imports.blob);
             }
             topLevelClass.addMethod(method(
-                PUBLIC, new FullyQualifiedJavaType(returnType), listWithBLOBsMethod, _(sqlSession, "sql"), __(
+                PUBLIC, new FullyQualifiedJavaType(returnType), listWithBLOBsMethod, param(sqlSession, "sql"), body(
                     "return sql.getMapper("+cls.names.mapper+".class).selectByExampleWithBLOBs(this);"
             )));
             topLevelClass.addMethod(method(
-                PUBLIC, new FullyQualifiedJavaType(returnType), listWithBLOBsMethod, _(cls.types.mapper, "mapper"), __(
+                PUBLIC, new FullyQualifiedJavaType(returnType), listWithBLOBsMethod, param(cls.types.mapper, "mapper"), body(
                     "return mapper.selectByExampleWithBLOBs(this);"
             )));
         }
@@ -359,12 +360,12 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
         String listType = "java.util.List<"+returnType+">";
         if (!base.startsWith(SKIP) && introspectedTable.getRules().generateSelectByExampleWithoutBLOBs()) {
             topLevelClass.addMethod(method(
-                PUBLIC, new FullyQualifiedJavaType(returnType), base, _(sqlSession, "sql"), __(
+                PUBLIC, new FullyQualifiedJavaType(returnType), base, param(sqlSession, "sql"), body(
                     listType + " list = sql.getMapper(" + cls.names.mapper + ".class).selectByExample(this);",
                     "return "+expression.replace("@result", returnType)+";"
             )));
             topLevelClass.addMethod(method(
-                PUBLIC, new FullyQualifiedJavaType(returnType), base, _(cls.types.mapper, "mapper"), __(
+                PUBLIC, new FullyQualifiedJavaType(returnType), base, param(cls.types.mapper, "mapper"), body(
                     listType + " list = mapper.selectByExample(this);",
                     "return "+expression.replace("@result", returnType)+";"
             )));
@@ -376,12 +377,12 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
             }
             listType = "java.util.List<"+returnType+">";
             topLevelClass.addMethod(method(
-                PUBLIC, new FullyQualifiedJavaType(returnType), withBLOBs, _(sqlSession, "sql"), __(
+                PUBLIC, new FullyQualifiedJavaType(returnType), withBLOBs, param(sqlSession, "sql"), body(
                     listType + " list = sql.getMapper(" + cls.names.mapper + ".class).selectByExampleWithBLOBs(this);",
                     "return "+expression.replace("@result", returnType)+";"
             )));
             topLevelClass.addMethod(method(
-                PUBLIC, new FullyQualifiedJavaType(returnType), withBLOBs, _(cls.types.mapper, "mapper"), __(
+                PUBLIC, new FullyQualifiedJavaType(returnType), withBLOBs, param(cls.types.mapper, "mapper"), body(
                     listType + " list = mapper.selectByExampleWithBLOBs(this);",
                     "return "+expression.replace("@result", returnType)+";"
             )));
@@ -399,11 +400,11 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
                 topLevelClass.addImportedType(cls.imports.blob);
             }
             topLevelClass.addMethod(method(
-                PUBLIC, INT, base, _(sqlSession, "sql"), _(new FullyQualifiedJavaType(record), "record"), __(
+                PUBLIC, INT, base, param(sqlSession, "sql"), param(new FullyQualifiedJavaType(record), "record"), body(
                     "return sql.getMapper(" + cls.names.mapper + ".class)."+mapperMethod+"(record, this);"
             )));
             topLevelClass.addMethod(method(
-                PUBLIC, INT, base, _(cls.types.mapper, "mapper"), _(new FullyQualifiedJavaType(record), "record"), __(
+                PUBLIC, INT, base, param(cls.types.mapper, "mapper"), param(new FullyQualifiedJavaType(record), "record"), body(
                     "return mapper."+mapperMethod+"(record, this);"
             )));
         }
@@ -414,11 +415,11 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
             }
             mapperMethod = selective ? "updateByExampleSelectiveWithBLOBs" /* not supported */ : "updateByExampleWithBLOBs";
             topLevelClass.addMethod(method(
-                PUBLIC, INT, withBLOBs, _(sqlSession, "sql"), _(new FullyQualifiedJavaType(record), "record"), __(
+                PUBLIC, INT, withBLOBs, param(sqlSession, "sql"), param(new FullyQualifiedJavaType(record), "record"), body(
                     "return sql.getMapper(" + cls.names.mapper + ".class)."+mapperMethod+"(record, this);"
             )));
             topLevelClass.addMethod(method(
-                PUBLIC, INT, withBLOBs, _(cls.types.mapper, "mapper"), _(new FullyQualifiedJavaType(record), "record"), __(
+                PUBLIC, INT, withBLOBs, param(cls.types.mapper, "mapper"), param(new FullyQualifiedJavaType(record), "record"), body(
                     "return mapper."+mapperMethod+"(record, this);"
             )));
         }
@@ -427,11 +428,11 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
     private void addDeleteMethods(TopLevelClass topLevelClass, IntrospectedTable introspectedTable, MyBatisClasses cls) {
         if (!deleteMethod.startsWith(SKIP) && introspectedTable.getRules().generateDeleteByExample()) {
             topLevelClass.addMethod(method(
-                PUBLIC, INT, deleteMethod, _(sqlSession, "sql"), __(
+                PUBLIC, INT, deleteMethod, param(sqlSession, "sql"), body(
                     "return sql.getMapper(" + cls.names.mapper + ".class).deleteByExample(this);"
             )));
             topLevelClass.addMethod(method(
-                PUBLIC, INT, deleteMethod, _(cls.types.mapper, "mapper"), __(
+                PUBLIC, INT, deleteMethod, param(cls.types.mapper, "mapper"), body(
                     "return mapper.deleteByExample(this);"
             )));
         }
@@ -440,11 +441,11 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
     private void addCountMethods(TopLevelClass topLevelClass, IntrospectedTable introspectedTable, MyBatisClasses cls) {
         if (!countMethod.startsWith(SKIP) && introspectedTable.getRules().generateCountByExample()) {
             topLevelClass.addMethod(method(
-                PUBLIC, INT, countMethod, _(sqlSession, "sql"), __(
+                PUBLIC, INT, countMethod, param(sqlSession, "sql"), body(
                     "return sql.getMapper(" + cls.names.mapper + ".class).countByExample(this);"
             )));
             topLevelClass.addMethod(method(
-                PUBLIC, INT, countMethod, _(cls.types.mapper, "mapper"), __(
+                PUBLIC, INT, countMethod, param(cls.types.mapper, "mapper"), body(
                     "return mapper.countByExample(this);"
             )));
         }
@@ -476,11 +477,11 @@ public class AddCriteriaActionsPlugin extends PluginAdapter {
             }
 
             exampleClass.addMethod(method(
-                PUBLIC, INT, action.getName(), _(sqlSession, "sql"), params.toArray(new Parameter[params.size()]), __(
+                PUBLIC, INT, action.getName(), param(sqlSession, "sql"), params.toArray(new Parameter[params.size()]), body(
                     "return sql.getMapper(" + cls.names.mapper + ".class)."+action.getName()+"("+args+");"
             )));
             exampleClass.addMethod(method(
-                PUBLIC, INT, action.getName(), _(cls.types.mapper, "mapper"), params.toArray(new Parameter[params.size()]), __(
+                PUBLIC, INT, action.getName(), param(cls.types.mapper, "mapper"), params.toArray(new Parameter[params.size()]), body(
                     "return mapper."+action.getName()+"("+args+");"
             )));
         }
